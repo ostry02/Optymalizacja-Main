@@ -1,0 +1,35 @@
+# Attractions: id,name,x,y,attractiveness
+0,Rynek Glowny,50.2,62.8,9.2
+1,Hala Targowa,53.7,58.1,6.4
+2,Ostrow Tumski,47.3,70.5,8.7
+3,Zoo Wroclaw,35.1,80.2,7.5
+4,Panorama Raclawicka,60.4,55.9,8.1
+5,Muzeum Narodowe,58.9,63.4,7.0
+6,Hydropolis,42.6,65.7,6.8
+7,Park Szczytnicki,38.5,75.3,5.9
+8,Hala Stulecia,33.2,78.6,8.3
+9,Dworzec Glowny,55.0,50.2,4.2
+10,Ogrod Botaniczny,44.8,72.1,6.5
+11,Sky Tower,62.3,48.7,5.8
+# Bus Edges: i,j
+0,1
+0,2
+0,5
+0,9
+1,4
+1,5
+1,9
+1,11
+2,3
+2,6
+2,10
+3,7
+3,8
+3,10
+4,5
+4,11
+5,6
+6,7
+7,8
+7,10
+9,11

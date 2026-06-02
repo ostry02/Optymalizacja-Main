@@ -1,0 +1,11 @@
+# Attractions: id,name,x,y,attractiveness
+0,Rynek Glowny,50.2,62.8,9.2
+1,Hala Targowa,53.7,58.1,6.4
+2,Ostrow Tumski,47.3,70.5,8.7
+3,Zoo Wroclaw,35.1,80.2,7.5
+4,Panorama Raclawicka,60.4,55.9,8.1
+# Bus Edges: i,j
+0,1
+0,2
+1,4
+2,3
