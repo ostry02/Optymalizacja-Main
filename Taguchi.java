@@ -1,0 +1,190 @@
+import java.io.*;
+import java.util.*;
+
+public class Taguchi {
+
+    // L9(3^4) orthogonal array, 9 experiments, 4 factors, 3 levels each
+    private static final int[][] L9 = {
+        {0, 0, 0, 0},
+        {0, 1, 1, 1},
+        {0, 2, 2, 2},
+        {1, 0, 1, 2},
+        {1, 1, 2, 0},
+        {1, 2, 0, 1},
+        {2, 0, 2, 1},
+        {2, 1, 0, 2},
+        {2, 2, 1, 0},
+    };
+
+    // PSO factor levels
+    private static final double[] PSO_INERTIA   = {0.4, 0.7, 0.9};
+    private static final double[] PSO_C1        = {1.0, 1.5, 2.0};
+    private static final double[] PSO_C2        = {1.0, 1.5, 2.0};
+    private static final int[]    PSO_PARTICLES = {15, 30, 50};
+    private static final String[] PSO_FACTORS   = {"inertia", "c1", "c2", "nParticles"};
+
+    // ACO factor levels
+    private static final double[] ACO_ALPHA_LEV = {0.5, 1.0, 2.0};
+    private static final double[] ACO_BETA_LEV  = {1.0, 2.0, 3.0};
+    private static final double[] ACO_EVAP_LEV  = {0.05, 0.1, 0.2};
+    private static final int[]    ACO_ANTS      = {15, 30, 50};
+    private static final String[] ACO_FACTORS   = {"alphaAco", "betaAco", "evapRate", "nAnts"};
+
+    private static final int PSO_ITER = 100;
+    private static final int ACO_ITER = 100;
+
+    private Taguchi() {}
+
+    public static void runPSO(Instance instance, double penalty, double alpha,
+                              int replications, long baseSeed) throws IOException {
+        System.out.println("\n=== Taguchi L9 - PSO (n=" + instance.n + ") ===");
+
+        double[][] results = new double[9][replications];
+
+        for (int exp = 0; exp < 9; exp++) {
+            int[] row = L9[exp];
+            double inertia    = PSO_INERTIA  [row[0]];
+            double c1         = PSO_C1       [row[1]];
+            double c2         = PSO_C2       [row[2]];
+            int    nParticles = PSO_PARTICLES[row[3]];
+
+            for (int r = 0; r < replications; r++) {
+                PSO pso = new PSO(instance, penalty, alpha,
+                        nParticles, PSO_ITER, inertia, c1, c2,
+                        new Random(baseSeed + exp * 1000L + r));
+                pso.run();
+                results[exp][r] = pso.getBestFitness();
+            }
+        }
+
+        double[] sn = computeSN(results);
+        printTable(PSO_FACTORS,
+                new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
+                sn, results);
+        int[] best = bestLevels(sn);
+        printOptimal("PSO", PSO_FACTORS,
+                new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)}, best);
+        saveCsv("taguchi_pso_n" + instance.n + ".csv", PSO_FACTORS,
+                new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
+                sn, results);
+    }
+
+    public static void runACO(Instance instance, double penalty, double alpha,
+                              int replications, long baseSeed) throws IOException {
+        System.out.println("\n=== Taguchi L9 - ACO (n=" + instance.n + ") ===");
+
+        double[][] results = new double[9][replications];
+
+        for (int exp = 0; exp < 9; exp++) {
+            int[] row = L9[exp];
+            double alphaAco = ACO_ALPHA_LEV[row[0]];
+            double betaAco  = ACO_BETA_LEV [row[1]];
+            double evap     = ACO_EVAP_LEV [row[2]];
+            int    nAnts    = ACO_ANTS     [row[3]];
+
+            for (int r = 0; r < replications; r++) {
+                ACO aco = new ACO(instance, penalty, alpha,
+                        nAnts, ACO_ITER, alphaAco, betaAco, evap, 100.0,
+                        new Random(baseSeed + exp * 1000L + r));
+                aco.run();
+                results[exp][r] = aco.getBestFitness();
+            }
+        }
+
+        double[] sn = computeSN(results);
+        printTable(ACO_FACTORS,
+                new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
+                sn, results);
+        int[] best = bestLevels(sn);
+        printOptimal("ACO", ACO_FACTORS,
+                new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)}, best);
+        saveCsv("taguchi_aco_n" + instance.n + ".csv", ACO_FACTORS,
+                new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
+                sn, results);
+    }
+
+    // smaller-is-better: SN = -10 * log10(mean(y^2))
+    private static double[] computeSN(double[][] results) {
+        double[] sn = new double[results.length];
+        for (int exp = 0; exp < results.length; exp++) {
+            double sumSq = 0;
+            for (double y : results[exp]) sumSq += y * y;
+            sn[exp] = -10.0 * Math.log10(sumSq / results[exp].length);
+        }
+        return sn;
+    }
+
+    private static int[] bestLevels(double[] sn) {
+        int nFactors = L9[0].length;
+        double[][] meanSN = new double[nFactors][3];
+        int[][] count = new int[nFactors][3];
+
+        for (int exp = 0; exp < 9; exp++)
+            for (int f = 0; f < nFactors; f++) {
+                int lv = L9[exp][f];
+                meanSN[f][lv] += sn[exp];
+                count[f][lv]++;
+            }
+
+        for (int f = 0; f < nFactors; f++)
+            for (int lv = 0; lv < 3; lv++)
+                if (count[f][lv] > 0) meanSN[f][lv] /= count[f][lv];
+
+        int[] best = new int[nFactors];
+        for (int f = 0; f < nFactors; f++)
+            for (int lv = 1; lv < 3; lv++)
+                if (meanSN[f][lv] > meanSN[f][best[f]]) best[f] = lv;
+
+        return best;
+    }
+
+    private static void printTable(String[] factors, double[][] levels, double[] sn, double[][] results) {
+        System.out.printf("%-4s  %-12s %-12s %-12s %-12s  %8s  %10s%n",
+                "Exp", factors[0], factors[1], factors[2], factors[3], "meanFit", "SN");
+        System.out.println("-".repeat(76));
+        for (int exp = 0; exp < 9; exp++) {
+            int[] row = L9[exp];
+            double mean = Arrays.stream(results[exp]).average().orElse(0);
+            System.out.printf("%-4d  %-12.4f %-12.4f %-12.4f %-12.4f  %8.2f  %10.4f%n",
+                    exp + 1,
+                    levels[0][row[0]], levels[1][row[1]],
+                    levels[2][row[2]], levels[3][row[3]],
+                    mean, sn[exp]);
+        }
+    }
+
+    private static void printOptimal(String algo, String[] factors, double[][] levels, int[] best) {
+        System.out.println("\nOptimal " + algo + " parameters:");
+        for (int f = 0; f < factors.length; f++)
+            System.out.printf("  %s = %.4f (level %d)%n", factors[f], levels[f][best[f]], best[f] + 1);
+    }
+
+    private static void saveCsv(String filename, String[] factors, double[][] levels,
+                                double[] sn, double[][] results) throws IOException {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
+            pw.print("exp," + factors[0] + "," + factors[1] + "," + factors[2] + "," + factors[3]
+                    + ",mean_fitness,sn_ratio");
+            for (int r = 0; r < results[0].length; r++) pw.print(",run" + (r + 1));
+            pw.println();
+
+            for (int exp = 0; exp < 9; exp++) {
+                int[] row = L9[exp];
+                double mean = Arrays.stream(results[exp]).average().orElse(0);
+                pw.printf("%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
+                        exp + 1,
+                        levels[0][row[0]], levels[1][row[1]],
+                        levels[2][row[2]], levels[3][row[3]],
+                        mean, sn[exp]);
+                for (double y : results[exp]) pw.printf(",%.4f", y);
+                pw.println();
+            }
+        }
+        System.out.println("Saved: " + filename);
+    }
+
+    private static double[] toDouble(int[] arr) {
+        double[] d = new double[arr.length];
+        for (int i = 0; i < arr.length; i++) d[i] = arr[i];
+        return d;
+    }
+}
