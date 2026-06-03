@@ -3,16 +3,24 @@ import java.util.*;
 
 public class Main {
 
-    static final long SEED = 42L;
+    static final long   SEED    = 42L;
     static final double PENALTY = 10.0;
-    static final double ALPHA = 1.0;
+    static final double ALPHA   = 1.0;
 
-    // parametry PSO
-    static final int N_PARTICLES = 30;
-    static final int MAX_ITER = 200;
-    static final double INERTIA = 0.7;
-    static final double C1 = 1.5;
-    static final double C2 = 1.5;
+    // PSO parameters
+    static final int    PSO_PARTICLES = 30;
+    static final int    PSO_ITER      = 200;
+    static final double PSO_INERTIA   = 0.7;
+    static final double PSO_C1        = 1.5;
+    static final double PSO_C2        = 1.5;
+
+    // ACO parameters
+    static final int    ACO_ANTS  = 30;
+    static final int    ACO_ITER  = 200;
+    static final double ACO_ALPHA = 1.0;  // pheromone exponent
+    static final double ACO_BETA  = 2.0;  // heuristic exponent
+    static final double ACO_EVAP  = 0.1;  // evaporation rate
+    static final double ACO_Q     = 100.0;
 
     static final String[] FILES = {
         "data/instance_5.csv",
@@ -26,51 +34,67 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         System.out.println("=== TSP - Atrakcje Wroclawia ===");
-        System.out.println("Seed=" + SEED + " Penalty=" + PENALTY + " Alpha=" + ALPHA);
+        System.out.println("Seed=" + SEED + "  Penalty=" + PENALTY + "  Alpha=" + ALPHA);
         System.out.println();
 
-        for(int f=0;f<FILES.length; f++) {
+        for (int f = 0; f < FILES.length; f++) {
             String file = FILES[f];
             System.out.println("--- " + file + " ---");
 
             Instance inst = Instance.loadFromCSV(file);
             System.out.println(inst);
 
-            long start = System.currentTimeMillis();
+            // --- PSO ---
+            PSO  pso    = new PSO(inst, PENALTY, ALPHA,
+                                  PSO_PARTICLES, PSO_ITER, PSO_INERTIA, PSO_C1, PSO_C2,
+                                  new Random(SEED + f));
+            long t0     = System.currentTimeMillis();
+            int[] psoBest = pso.run();
+            long psoMs  = System.currentTimeMillis() - t0;
 
-            PSO pso = new PSO(inst, PENALTY, ALPHA, N_PARTICLES, MAX_ITER, INERTIA, C1, C2, new Random(SEED));
-            int[] best = pso.run();
+            System.out.printf("[PSO] fitness=%.4f  time=%d ms%n", pso.getBestFitness(), psoMs);
+            System.out.println("[PSO] " + Evaluation.breakdown(psoBest, inst, PENALTY, ALPHA));
+            System.out.println("[PSO] route: " + routeNames(psoBest, inst));
 
-            long czas = System.currentTimeMillis() - start;
+            // --- ACO ---
+            ACO  aco    = new ACO(inst, PENALTY, ALPHA,
+                                  ACO_ANTS, ACO_ITER, ACO_ALPHA, ACO_BETA, ACO_EVAP, ACO_Q,
+                                  new Random(SEED + f + 100));
+            t0          = System.currentTimeMillis();
+            int[] acoBest = aco.run();
+            long acoMs  = System.currentTimeMillis() - t0;
 
-            System.out.println("Best fitness: " + String.format("%.4f", pso.getBestFitness()));
-            System.out.println(Evaluation.breakdown(best, inst, PENALTY, ALPHA));
+            System.out.printf("[ACO] fitness=%.4f  time=%d ms%n", aco.getBestFitness(), acoMs);
+            System.out.println("[ACO] " + Evaluation.breakdown(acoBest, inst, PENALTY, ALPHA));
+            System.out.println("[ACO] route: " + routeNames(acoBest, inst));
 
-            // wypisuje trase
-            System.out.print("Trasa: ");
-            for (int i=0; i<best.length; i++) {
-                if(i > 0) System.out.print(" -> ");
-                System.out.print(inst.attractions.get(best[i]).name);
-            }
-            System.out.println();
-            System.out.println("Czas: " + czas + " ms");
-
-            // zapis historii do csv
-            String outName = "results_" + inst.n + ".csv";
-            saveHistory(pso.getHistory(), outName);
-            System.out.println("Zapisano: " + outName);
+            // --- save combined CSV ---
+            String outName = "results_n" + inst.n + ".csv";
+            saveHistory(outName, pso.getHistory(), aco.getHistory());
+            System.out.println("Saved: " + outName);
             System.out.println();
         }
 
-        System.out.println("=== Koniec ===");
+        System.out.println("=== Done ===");
     }
 
-    static void saveHistory(double[] history, String fileName) throws IOException {
-        PrintWriter pw = new PrintWriter(new FileWriter(fileName));
-        pw.println("iteration,best_fitness");
-        for (int i=0; i<history.length;i++) {
-            pw.println((i+1) + "," + String.format("%.6f", history[i]));
+    /** Returns route as a string of attraction names. */
+    static String routeNames(int[] route, Instance inst) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < route.length; i++) {
+            if (i > 0) sb.append(" -> ");
+            sb.append(inst.attractions.get(route[i]).name);
         }
+        return sb.toString();
+    }
+
+    /** Saves PSO and ACO fitness histories to a single CSV file. */
+    static void saveHistory(String fileName, double[] psoHist, double[] acoHist) throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter(fileName));
+        pw.println("iteration,fitness_pso,fitness_aco");
+        for (int i = 0; i < psoHist.length; i++)
+            pw.println((i + 1) + "," + String.format("%.6f", psoHist[i])
+                               + "," + String.format("%.6f", acoHist[i]));
         pw.close();
     }
 }
