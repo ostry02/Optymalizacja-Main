@@ -40,6 +40,9 @@ public class Config {
     // Taguchi
     public int getTaguchiReplications() { return Integer.parseInt(get("taguchi.replications")); }
 
+    // Stats
+    public int getStatsRuns() { return Integer.parseInt(get("stats.runs")); }
+
     private String get(String key) {
         String val = props.getProperty(key);
         if (val == null) throw new RuntimeException("Missing config key: " + key);

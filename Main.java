@@ -58,6 +58,13 @@ public class Main {
 
         System.out.println("=== Done ===");
 
+        // Stats
+        System.out.println("\n\n=== Statistical comparison (" + cfg.getStatsRuns() + " runs) ===");
+        for (int f = 0; f < files.length; f++) {
+            Instance inst = Instance.loadFromCSV(files[f]);
+            Stats.run(inst, penalty, alpha, cfg, cfg.getStatsRuns(), seed + 5000L + f);
+        }
+
         // Taguchi
         System.out.println("\n\n=== Taguchi L9 - parameter tuning ===");
         long taguchiSeed = seed + 9000L;
