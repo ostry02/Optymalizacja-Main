@@ -1,0 +1,5 @@
+# Compiled Java classes
+*.class
+
+# Runtime output CSVs
+results_*.csv
