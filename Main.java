@@ -76,6 +76,19 @@ public class Main {
         }
 
         System.out.println("=== Done ===");
+
+        // Taguchi parameter tuning
+        System.out.println("\n\n=== Taguchi L9 - parameter tuning ===");
+        int taguchiReps = 5;
+        long taguchiSeed = SEED + 9000L;
+
+        for (int f = 0; f < FILES.length; f++) {
+            Instance inst = Instance.loadFromCSV(FILES[f]);
+            Taguchi.runPSO(inst, PENALTY, ALPHA, taguchiReps, taguchiSeed + f);
+            Taguchi.runACO(inst, PENALTY, ALPHA, taguchiReps, taguchiSeed + f);
+        }
+
+        System.out.println("\n=== Taguchi done ===");
     }
 
     /** Returns route as a string of attraction names. */
