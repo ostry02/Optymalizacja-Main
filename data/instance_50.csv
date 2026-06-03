@@ -1,0 +1,198 @@
+# Attractions: id,name,x,y,attractiveness
+0,Rynek Glowny,50.2,62.8,9.2
+1,Hala Targowa,53.7,58.1,6.4
+2,Ostrow Tumski,47.3,70.5,8.7
+3,Zoo Wroclaw,35.1,80.2,7.5
+4,Panorama Raclawicka,60.4,55.9,8.1
+5,Muzeum Narodowe,58.9,63.4,7.0
+6,Hydropolis,42.6,65.7,6.8
+7,Park Szczytnicki,38.5,75.3,5.9
+8,Hala Stulecia,33.2,78.6,8.3
+9,Dworzec Glowny,55.0,50.2,4.2
+10,Ogrod Botaniczny,44.8,72.1,6.5
+11,Sky Tower,62.3,48.7,5.8
+12,Most Grunwaldzki,46.1,66.9,5.2
+13,Galeria Dominikanska,52.5,60.3,4.8
+14,Ratusz,49.8,63.1,7.8
+15,Opera Wroclawska,54.2,64.7,6.9
+16,Fontanna Multimedialna,32.8,76.4,7.2
+17,Muzeum Architektury,48.5,68.2,5.5
+18,Plac Solny,51.0,61.5,6.1
+19,Nowy Targ,50.6,59.8,4.5
+20,Stadion Miejski,25.4,85.1,6.3
+21,Afrykarium,34.8,81.5,8.0
+22,Kosciol sw Elzbiety,49.1,64.5,7.1
+23,Filharmonia,56.3,61.8,6.6
+24,Centrum Historii,43.9,59.2,5.4
+25,Park Poludniowy,57.8,52.6,5.0
+26,Ossolineum,48.0,65.3,6.2
+27,Aquapark,30.5,70.8,7.4
+28,Zamek Krolewski,51.5,67.4,7.9
+29,Muzeum Miejskie,50.0,63.9,5.7
+30,Katedra Wroclawska,46.8,71.8,8.5
+31,Uniwersytet Wroclawski,47.6,64.1,7.3
+32,Teatr Polski,52.1,65.3,6.7
+33,Synagoga Pod Bialym Bocianem,50.9,60.9,6.0
+34,Muzeum Etnograficzne,49.3,66.8,5.3
+35,Galeria Foto-Medium-Art,54.8,62.1,4.6
+36,Park Grabiszynski,43.1,52.7,5.1
+37,Cmentarz Osobowicki,38.2,55.6,3.8
+38,Wyspa Slodowa,44.5,64.3,7.6
+39,Bulwar Xawerego Dunikowskiego,46.0,60.5,6.4
+40,Kosciol sw Krzysztofa,51.8,63.5,5.6
+41,Muzeum Poczty,53.0,66.1,4.9
+42,Wzgorze Partyzantow,58.2,57.3,4.4
+43,Park Milenijny,28.7,73.5,5.8
+44,Brama Tumska,46.5,69.2,6.9
+45,Kosciol Bozego Ciala,48.7,67.4,5.5
+46,Wroclaw Glowny Galeria,55.5,51.0,4.3
+47,Biblioteka Uniwersytecka,47.2,62.9,6.1
+48,Plac Wolnosci,56.1,59.4,5.2
+49,Kosciol sw Doroty,51.3,58.6,5.9
+# Bus Edges: i,j
+0,1
+0,2
+0,5
+0,9
+0,14
+0,18
+0,22
+0,29
+0,31
+0,33
+0,40
+0,47
+1,4
+1,5
+1,9
+1,11
+1,13
+1,23
+1,35
+1,42
+1,48
+1,49
+2,3
+2,6
+2,10
+2,12
+2,17
+2,28
+2,30
+2,34
+2,44
+3,7
+3,8
+3,10
+3,16
+3,21
+3,43
+4,5
+4,11
+4,15
+4,23
+4,25
+4,42
+5,6
+5,15
+5,23
+5,32
+5,41
+6,7
+6,12
+6,26
+6,27
+6,38
+6,44
+6,45
+7,8
+7,10
+7,16
+7,43
+8,16
+8,20
+8,21
+9,11
+9,13
+9,19
+9,25
+9,36
+9,46
+10,17
+10,26
+10,30
+10,44
+12,17
+12,26
+12,28
+12,38
+12,44
+13,18
+13,19
+13,24
+13,33
+13,49
+14,15
+14,18
+14,22
+14,29
+14,31
+14,32
+14,40
+14,47
+15,23
+15,32
+15,41
+16,20
+16,27
+16,43
+17,28
+17,34
+17,45
+18,19
+18,33
+18,39
+18,40
+18,47
+20,21
+20,43
+22,26
+22,29
+22,31
+22,45
+24,25
+24,36
+24,39
+24,49
+26,28
+26,31
+26,34
+26,47
+28,30
+28,34
+28,41
+30,31
+30,44
+30,45
+31,38
+31,40
+31,47
+33,39
+33,40
+33,49
+35,32
+35,42
+36,37
+36,46
+38,39
+38,44
+39,47
+39,49
+40,41
+41,45
+42,48
+43,27
+44,45
+46,48
+46,49
+47,48
