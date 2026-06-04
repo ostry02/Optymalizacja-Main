@@ -1,7 +1,5 @@
-# Compiled Java classes
 *.class
-
-# Runtime output CSVs
 results_*.csv
 taguchi_*.csv
 stats_*.csv
+.vscode

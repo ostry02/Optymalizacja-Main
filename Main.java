@@ -8,9 +8,9 @@ public class Main {
 
         Config cfg = new Config("config.properties");
 
-        long   seed    = cfg.getSeed();
+        long seed = cfg.getSeed();
         double penalty = cfg.getPenalty();
-        double alpha   = cfg.getAlpha();
+        double alpha = cfg.getAlpha();
 
         System.out.println("=== TSP - Atrakcje Wroclawia ===");
         System.out.println("Seed=" + seed + "  Penalty=" + penalty + "  Alpha=" + alpha);

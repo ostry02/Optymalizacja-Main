@@ -49,9 +49,9 @@ public class Stats {
 
             pw.println();
             pw.printf("mean,%.6f,%.6f%n", mean(pso), mean(aco));
-            pw.printf("std,%.6f,%.6f%n",  std(pso),  std(aco));
-            pw.printf("min,%.6f,%.6f%n",  min(pso),  min(aco));
-            pw.printf("max,%.6f,%.6f%n",  max(pso),  max(aco));
+            pw.printf("std,%.6f,%.6f%n", std(pso), std(aco));
+            pw.printf("min,%.6f,%.6f%n", min(pso), min(aco));
+            pw.printf("max,%.6f,%.6f%n", max(pso), max(aco));
         }
         System.out.println("Saved: " + filename);
     }

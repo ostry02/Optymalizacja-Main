@@ -3,7 +3,7 @@ import java.util.*;
 
 public class Taguchi {
 
-    // L9(3^4) orthogonal array, 9 experiments, 4 factors, 3 levels each
+    // tablica ortogonalna L9(3^4) - 9 eksperymentow, 4 czynniki, 3 poziomy kazdego
     private static final int[][] L9 = {
         {0, 0, 0, 0},
         {0, 1, 1, 1},
@@ -17,18 +17,18 @@ public class Taguchi {
     };
 
     // PSO factor levels
-    private static final double[] PSO_INERTIA   = {0.4, 0.7, 0.9};
-    private static final double[] PSO_C1        = {1.0, 1.5, 2.0};
-    private static final double[] PSO_C2        = {1.0, 1.5, 2.0};
-    private static final int[]    PSO_PARTICLES = {15, 30, 50};
-    private static final String[] PSO_FACTORS   = {"inertia", "c1", "c2", "nParticles"};
+    private static final double[] PSO_INERTIA = {0.4, 0.7, 0.9};
+    private static final double[] PSO_C1 = {1.0, 1.5, 2.0};
+    private static final double[] PSO_C2 = {1.0, 1.5, 2.0};
+    private static final int[] PSO_PARTICLES = {15, 30, 50};
+    private static final String[] PSO_FACTORS = {"inertia", "c1", "c2", "nParticles"};
 
     // ACO factor levels
     private static final double[] ACO_ALPHA_LEV = {0.5, 1.0, 2.0};
-    private static final double[] ACO_BETA_LEV  = {1.0, 2.0, 3.0};
-    private static final double[] ACO_EVAP_LEV  = {0.05, 0.1, 0.2};
-    private static final int[]    ACO_ANTS      = {15, 30, 50};
-    private static final String[] ACO_FACTORS   = {"alphaAco", "betaAco", "evapRate", "nAnts"};
+    private static final double[] ACO_BETA_LEV = {1.0, 2.0, 3.0};
+    private static final double[] ACO_EVAP_LEV = {0.05, 0.1, 0.2};
+    private static final int[] ACO_ANTS = {15, 30, 50};
+    private static final String[] ACO_FACTORS = {"alphaAco", "betaAco", "evapRate", "nAnts"};
 
     private static final int PSO_ITER = 100;
     private static final int ACO_ITER = 100;
@@ -43,10 +43,10 @@ public class Taguchi {
 
         for (int exp = 0; exp < 9; exp++) {
             int[] row = L9[exp];
-            double inertia    = PSO_INERTIA  [row[0]];
-            double c1         = PSO_C1       [row[1]];
-            double c2         = PSO_C2       [row[2]];
-            int    nParticles = PSO_PARTICLES[row[3]];
+            double inertia = PSO_INERTIA[row[0]];
+            double c1 = PSO_C1[row[1]];
+            double c2 = PSO_C2[row[2]];
+            int nParticles = PSO_PARTICLES[row[3]];
 
             for (int r = 0; r < replications; r++) {
                 PSO pso = new PSO(instance, penalty, alpha,
@@ -78,9 +78,9 @@ public class Taguchi {
         for (int exp = 0; exp < 9; exp++) {
             int[] row = L9[exp];
             double alphaAco = ACO_ALPHA_LEV[row[0]];
-            double betaAco  = ACO_BETA_LEV [row[1]];
-            double evap     = ACO_EVAP_LEV [row[2]];
-            int    nAnts    = ACO_ANTS     [row[3]];
+            double betaAco = ACO_BETA_LEV[row[1]];
+            double evap = ACO_EVAP_LEV[row[2]];
+            int nAnts = ACO_ANTS[row[3]];
 
             for (int r = 0; r < replications; r++) {
                 ACO aco = new ACO(instance, penalty, alpha,
