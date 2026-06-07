@@ -6,10 +6,10 @@ import java.util.*;
 public class Instance {
 
     public List<Attraction> attractions;
-    public Set<Long> busEdges;
+    public Set<String> busEdges;
     public int n;
 
-    public Instance(List<Attraction> attractions, Set<Long> busEdges) {
+    public Instance(List<Attraction> attractions, Set<String> busEdges) {
         this.attractions = attractions;
         this.busEdges = busEdges;
         this.n = attractions.size();
@@ -21,16 +21,13 @@ public class Instance {
         return Math.sqrt(dx*dx + dy*dy);
     }
 
-    // czy jest autobus miedzy i a j
-    public boolean hasBus(int i,int j) {
-        int lo, hi;
-        if(i < j) { lo = i; hi = j; } else { lo = j; hi = i; }
-        return busEdges.contains((long)lo * 100000 + hi);
+    public boolean hasBus(int i, int j) {
+        return busEdges.contains(i + "," + j);
     }
 
     public static Instance loadFromCSV(String path) throws IOException {
         List<Attraction> atr = new ArrayList<>();
-        Set<Long> edges = new HashSet<>();
+        Set<String> edges = new HashSet<>();
 
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line;
@@ -57,9 +54,8 @@ public class Instance {
             else if(mode == 2) {
                 int i = Integer.parseInt(parts[0].trim());
                 int j = Integer.parseInt(parts[1].trim());
-                int lo, hi;
-                if(i < j) { lo = i; hi = j; } else { lo = j; hi = i; }
-                edges.add((long)lo * 100000 + hi);
+                edges.add(i + "," + j);
+                edges.add(j + "," + i);
             }
         }
         br.close();

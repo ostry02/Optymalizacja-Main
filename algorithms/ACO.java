@@ -22,6 +22,7 @@ public class ACO {
 
     private int[] bestRoute;
     private double bestFitness;
+    private Evaluation.EvalResult bestResult;
     private double[] history;
 
     private static final double TAU0 = 1.0;
@@ -56,13 +57,15 @@ public class ACO {
 
             for (int ant = 0; ant < nAnts; ant++) {
                 int[] tour = buildTour(n);
-                double fit = Evaluation.evaluate(tour, instance, penalty, alpha);
+                Evaluation.EvalResult result = Evaluation.evaluate(tour, instance, penalty, alpha);
+                double fit = result.total();
                 if (fit < iterBestFit) {
                     iterBestFit = fit;
                     iterBestRoute = tour;
                 }
                 if (fit < bestFitness) {
                     bestFitness = fit;
+                    bestResult = result;
                     bestRoute = Arrays.copyOf(tour, n);
                 }
             }
@@ -76,6 +79,7 @@ public class ACO {
     }
 
     public double getBestFitness() { return bestFitness; }
+    public Evaluation.EvalResult getBestResult() { return bestResult; }
     public double[] getHistory() { return Arrays.copyOf(history, history.length); }
 
     private void initTau(int n) {

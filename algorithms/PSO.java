@@ -19,6 +19,7 @@ public class PSO {
 
     int[] bestRoute;
     double bestFitness;
+    Evaluation.EvalResult bestResult;
     double[] history;
 
     public PSO(Instance instance, double penalty, double alpha,
@@ -44,10 +45,12 @@ public class PSO {
         List<Particle> swarm = new ArrayList<>();
         for (int p=0; p<nParticles; p++) {
             int[] pos = randomPerm(n);
-            double fit = Evaluation.evaluate(pos, instance, penalty, alpha);
+            Evaluation.EvalResult result = Evaluation.evaluate(pos, instance, penalty, alpha);
+            double fit = result.total();
             swarm.add(new Particle(pos, fit));
             if(fit < bestFitness) {
                 bestFitness = fit;
+                bestResult = result;
                 bestRoute = new int[n];
                 for(int i=0; i<n; i++) bestRoute[i] = pos[i];
             }
@@ -56,48 +59,50 @@ public class PSO {
         // glowna petla
         for (int iter=0; iter<maxIter;iter++) {
             for (int p = 0; p<swarm.size(); p++) {
-                Particle czastka = swarm.get(p);
+                Particle particle = swarm.get(p);
                 List<int[]> newVel = new ArrayList<>();
 
                 // inercja - zachowaj swapy z prawdopodobienstwem w
-                for (int s=0; s<czastka.velocity.size();s++) {
+                for (int s=0; s<particle.velocity.size();s++) {
                     if(rng.nextDouble() < inertia) {
-                        newVel.add(czastka.velocity.get(s));
+                        newVel.add(particle.velocity.get(s));
                     }
                 }
 
                 // skladowa poznawcza - w strone personal best
                 double r1 = rng.nextDouble();
-                List<int[]> diffP = computeDiff(czastka.position, czastka.personalBest);
+                List<int[]> diffP = computeDiff(particle.position, particle.personalBest);
                 for(int s=0; s<diffP.size(); s++) {
                     if(rng.nextDouble() < c1*r1) newVel.add(diffP.get(s));
                 }
 
                 // skladowa spoleczna - w strone global best
                 double r2 = rng.nextDouble();
-                List<int[]> diffG = computeDiff(czastka.position, bestRoute);
+                List<int[]> diffG = computeDiff(particle.position, bestRoute);
                 for (int s=0; s<diffG.size(); s++) {
                     if(rng.nextDouble() < c2*r2) newVel.add(diffG.get(s));
                 }
 
-                czastka.velocity = newVel;
+                particle.velocity = newVel;
 
                 // aplikuje swapy do nowej pozycji
                 int[] newPos = new int[n];
-                for (int i=0; i<n; i++) newPos[i] = czastka.position[i];
+                for (int i=0; i<n; i++) newPos[i] = particle.position[i];
                 for (int s=0; s<newVel.size(); s++) {
                     int[] swap = newVel.get(s);
                     int tmp = newPos[swap[0]];
                     newPos[swap[0]] = newPos[swap[1]];
                     newPos[swap[1]] = tmp;
                 }
-                czastka.position = newPos;
+                particle.position = newPos;
 
-                double fit = Evaluation.evaluate(newPos, instance, penalty, alpha);
-                czastka.tryUpdatePBest(newPos, fit);
+                Evaluation.EvalResult result = Evaluation.evaluate(newPos, instance, penalty, alpha);
+                double fit = result.total();
+                particle.tryUpdatePBest(newPos, fit);
 
                 if(fit < bestFitness) {
                     bestFitness = fit;
+                    bestResult = result;
                     bestRoute = new int[n];
                     for (int i=0;i<n;i++) bestRoute[i] = newPos[i];
                 }
@@ -112,6 +117,7 @@ public class PSO {
     }
 
     public double getBestFitness() { return bestFitness; }
+    public Evaluation.EvalResult getBestResult() { return bestResult; }
     public double[] getHistory() { return history; }
 
     // losowa permutacja przez tasowanie

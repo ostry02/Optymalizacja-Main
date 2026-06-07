@@ -29,7 +29,7 @@ public class Main {
                     cfg.getPsoInertia(), cfg.getPsoC1(), cfg.getPsoC2(),
                     new Random(seed + f));
             long t0 = System.currentTimeMillis();
-            int[] psoBest = pso.run();
+            pso.run();
             long psoMs = System.currentTimeMillis() - t0;
 
             // ACO
@@ -38,7 +38,7 @@ public class Main {
                     cfg.getAcoAlpha(), cfg.getAcoBeta(), cfg.getAcoEvaporation(), cfg.getAcoQ(),
                     new Random(seed + f + 100));
             t0 = System.currentTimeMillis();
-            int[] acoBest = aco.run();
+            aco.run();
             long acoMs = System.currentTimeMillis() - t0;
 
             String outName = "results/results_n" + inst.n + ".csv";
@@ -46,24 +46,21 @@ public class Main {
             System.out.println("Saved: " + outName);
 
             Stats.save(inst, penalty, alpha,
-                    psoBest, pso.getBestFitness(), psoMs,
-                    acoBest, aco.getBestFitness(), acoMs);
-
-            System.out.println();
+                    pso.getBestResult(), psoMs,
+                    aco.getBestResult(), acoMs);
         }
 
 
         // Taguchi
-        // System.out.println("\n\n=== Taguchi L9 - parameter tuning ===");
-        // long taguchiSeed = seed + 9000L;
+        System.out.println("\n\n=== Taguchi L9 - parameter tuning ===");
+        long taguchiSeed = seed + 9000L;
 
-        // for (int f = 0; f < files.length; f++) {
-        //     Instance inst = Instance.loadFromCSV(files[f]);
-        //     Taguchi.runPSO(inst, penalty, alpha, cfg.getTaguchiReplications(), taguchiSeed + f);
-        //     Taguchi.runACO(inst, penalty, alpha, cfg.getTaguchiReplications(), taguchiSeed + f);
-        // }
+        for (int f = 0; f < files.length; f++) {
+            Instance inst = Instance.loadFromCSV(files[f]);
+            Taguchi.runPSO(inst, penalty, alpha, cfg.getTaguchiReplications(), taguchiSeed + f);
+            Taguchi.runACO(inst, penalty, alpha, cfg.getTaguchiReplications(), taguchiSeed + f);
+        }
 
-        // System.out.println("\n=== Taguchi done ===");
     }
 
     static void saveHistory(String fileName, double[] psoHist, double[] acoHist) throws IOException {
