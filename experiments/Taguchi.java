@@ -1,5 +1,9 @@
+package experiments;
+
 import java.io.*;
 import java.util.*;
+import model.*;
+import algorithms.*;
 
 public class Taguchi {
 
@@ -64,7 +68,7 @@ public class Taguchi {
         int[] best = bestLevels(sn);
         printOptimal("PSO", PSO_FACTORS,
                 new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)}, best);
-        saveCsv("taguchi_pso_n" + instance.n + ".csv", PSO_FACTORS,
+        saveCsv("results/taguchi_pso_n" + instance.n + ".csv", PSO_FACTORS,
                 new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
                 sn, results);
     }
@@ -98,7 +102,7 @@ public class Taguchi {
         int[] best = bestLevels(sn);
         printOptimal("ACO", ACO_FACTORS,
                 new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)}, best);
-        saveCsv("taguchi_aco_n" + instance.n + ".csv", ACO_FACTORS,
+        saveCsv("results/taguchi_aco_n" + instance.n + ".csv", ACO_FACTORS,
                 new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
                 sn, results);
     }

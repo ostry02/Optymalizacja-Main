@@ -1,5 +1,9 @@
+package experiments;
+
 import java.io.*;
 import java.util.*;
+import model.*;
+import algorithms.*;
 
 public class Stats {
 
@@ -41,7 +45,7 @@ public class Stats {
     }
 
     private static void saveCsv(int n, double[] pso, double[] aco) throws IOException {
-        String filename = "stats_n" + n + ".csv";
+        String filename = "results/stats_n" + n + ".csv";
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
             pw.println("run,fitness_pso,fitness_aco");
             for (int i = 0; i < pso.length; i++)

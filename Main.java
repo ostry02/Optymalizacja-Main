@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.*;
+import model.*;
+import algorithms.*;
+import experiments.*;
 
 public class Main {
 
@@ -7,6 +10,8 @@ public class Main {
         Locale.setDefault(Locale.US);
 
         Config cfg = new Config("config.properties");
+
+        new File("results").mkdirs();
 
         long seed = cfg.getSeed();
         double penalty = cfg.getPenalty();
@@ -50,7 +55,7 @@ public class Main {
             System.out.println("[ACO] " + Evaluation.breakdown(acoBest, inst, penalty, alpha));
             System.out.println("[ACO] route: " + routeNames(acoBest, inst));
 
-            String outName = "results_n" + inst.n + ".csv";
+            String outName = "results/results_n" + inst.n + ".csv";
             saveHistory(outName, pso.getHistory(), aco.getHistory());
             System.out.println("Saved: " + outName);
             System.out.println();

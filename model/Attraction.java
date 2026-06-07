@@ -1,9 +1,11 @@
+package model;
+
 public class Attraction {
-    int id;
-    String name;
-    double x;
-    double y;
-    double attractiveness;
+    public int id;
+    public String name;
+    public double x;
+    public double y;
+    public double attractiveness;
 
     public Attraction(int id, String name, double x, double y, double attractiveness) {
         this.id = id;

@@ -1,4 +1,7 @@
+package algorithms;
+
 import java.util.*;
+import model.*;
 
 // PSO dla permutacji - pozycja to permutacja, predkosc to lista swapow
 public class PSO {

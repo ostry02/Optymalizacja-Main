@@ -1,11 +1,13 @@
+package algorithms;
+
 import java.util.*;
 
 // pojedyncza czastka w roju
 public class Particle {
-    int[] position;
-    List<int[]> velocity;
-    int[] personalBest;
-    double personalBestFit;
+    public int[] position;
+    public List<int[]> velocity;
+    public int[] personalBest;
+    public double personalBestFit;
 
     public Particle(int[] pos,double fit) {
         this.position = new int[pos.length];

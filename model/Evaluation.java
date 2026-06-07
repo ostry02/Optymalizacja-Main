@@ -1,3 +1,5 @@
+package model;
+
 // funkcja celu = dystans + kara za brak autobusu - atrakcyjnosc
 public class Evaluation {
 
