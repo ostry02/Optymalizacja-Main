@@ -1,87 +1,63 @@
 package experiments;
 
 import java.io.*;
-import java.util.*;
 import model.*;
-import algorithms.*;
 
 public class Stats {
 
     private Stats() {}
 
-    public static void run(Instance instance, double penalty, double alpha,
-                           Config cfg, int nRuns, long baseSeed) throws IOException {
+    public static void save(Instance instance, double penalty, double alpha,
+                            int[] psoBest, double psoFitness, long psoMs,
+                            int[] acoBest, double acoFitness, long acoMs) throws IOException {
 
-        double[] psoResults = new double[nRuns];
-        double[] acoResults = new double[nRuns];
+        double[] psoB = breakdown(psoBest, instance, penalty, alpha);
+        double[] acoB = breakdown(acoBest, instance, penalty, alpha);
 
-        for (int r = 0; r < nRuns; r++) {
-            PSO pso = new PSO(instance, penalty, alpha,
-                    cfg.getPsoParticles(), cfg.getPsoIterations(),
-                    cfg.getPsoInertia(), cfg.getPsoC1(), cfg.getPsoC2(),
-                    new Random(baseSeed + r));
-            pso.run();
-            psoResults[r] = pso.getBestFitness();
+        printSummary(instance.n, psoFitness, psoMs, psoB, acoFitness, acoMs, acoB);
+        saveCsv(instance.n, psoFitness, psoMs, psoB, acoFitness, acoMs, acoB, penalty, alpha);
+    }
 
-            ACO aco = new ACO(instance, penalty, alpha,
-                    cfg.getAcoAnts(), cfg.getAcoIterations(),
-                    cfg.getAcoAlpha(), cfg.getAcoBeta(), cfg.getAcoEvaporation(), cfg.getAcoQ(),
-                    new Random(baseSeed + r + 10000));
-            aco.run();
-            acoResults[r] = aco.getBestFitness();
+    private static double[] breakdown(int[] route, Instance instance, double penalty, double alpha) {
+        double dist = 0;
+        int noBus = 0;
+        double attr = 0;
+        for (int i = 0; i < route.length - 1; i++) {
+            dist += instance.distance(route[i], route[i + 1]);
+            if (!instance.hasBus(route[i], route[i + 1])) noBus++;
         }
-
-        printSummary(instance.n, nRuns, psoResults, acoResults);
-        saveCsv(instance.n, psoResults, acoResults);
+        for (int i = 0; i < route.length; i++)
+            attr += instance.attractions.get(route[i]).attractiveness;
+        double total = dist + penalty * noBus - alpha * attr;
+        return new double[]{dist, noBus, penalty * noBus, attr, alpha * attr, total};
     }
 
-    private static void printSummary(int n, int nRuns, double[] pso, double[] aco) {
-        System.out.println("\n--- Stats n=" + n + " (" + nRuns + " runs) ---");
-        System.out.printf("%-6s  %8s  %8s  %8s  %8s%n", "", "mean", "std", "min", "max");
-        System.out.printf("%-6s  %8.4f  %8.4f  %8.4f  %8.4f%n",
-                "PSO", mean(pso), std(pso), min(pso), max(pso));
-        System.out.printf("%-6s  %8.4f  %8.4f  %8.4f  %8.4f%n",
-                "ACO", mean(aco), std(aco), min(aco), max(aco));
+    private static void printSummary(int n,
+                                     double psoFit, long psoMs, double[] p,
+                                     double acoFit, long acoMs, double[] a) {
+        System.out.println("\n--- Stats n=" + n + " ---");
+        System.out.printf("%-4s  %10s  %8s  %8s  %5s  %10s  %8s  %10s  %10s%n",
+                "algo", "fitness", "time_ms", "dist", "noBus", "penCost", "attr", "attrScore", "total");
+        System.out.printf("%-4s  %10.4f  %8d  %8.2f  %5.0f  %10.2f  %8.2f  %10.2f  %10.4f%n",
+                "PSO", psoFit, psoMs, p[0], p[1], p[2], p[3], p[4], p[5]);
+        System.out.printf("%-4s  %10.4f  %8d  %8.2f  %5.0f  %10.2f  %8.2f  %10.2f  %10.4f%n",
+                "ACO", acoFit, acoMs, a[0], a[1], a[2], a[3], a[4], a[5]);
     }
 
-    private static void saveCsv(int n, double[] pso, double[] aco) throws IOException {
+    private static void saveCsv(int n,
+                                 double psoFit, long psoMs, double[] p,
+                                 double acoFit, long acoMs, double[] a,
+                                 double penalty, double alpha) throws IOException {
         String filename = "results/stats_n" + n + ".csv";
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
-            pw.println("run,fitness_pso,fitness_aco");
-            for (int i = 0; i < pso.length; i++)
-                pw.printf("%d,%.6f,%.6f%n", i + 1, pso[i], aco[i]);
-
+            pw.println("algo,fitness,time_ms,dist,noBus,penalty_cost,attr,attr_score,total");
+            pw.printf("PSO,%.6f,%d,%.4f,%.0f,%.4f,%.4f,%.4f,%.6f%n",
+                    psoFit, psoMs, p[0], p[1], p[2], p[3], p[4], p[5]);
+            pw.printf("ACO,%.6f,%d,%.4f,%.0f,%.4f,%.4f,%.4f,%.6f%n",
+                    acoFit, acoMs, a[0], a[1], a[2], a[3], a[4], a[5]);
             pw.println();
-            pw.printf("mean,%.6f,%.6f%n", mean(pso), mean(aco));
-            pw.printf("std,%.6f,%.6f%n", std(pso), std(aco));
-            pw.printf("min,%.6f,%.6f%n", min(pso), min(aco));
-            pw.printf("max,%.6f,%.6f%n", max(pso), max(aco));
+            pw.printf("# penalty=%.4f  alpha=%.4f%n", penalty, alpha);
         }
         System.out.println("Saved: " + filename);
-    }
-
-    private static double mean(double[] v) {
-        double s = 0;
-        for (double x : v) s += x;
-        return s / v.length;
-    }
-
-    private static double std(double[] v) {
-        double m = mean(v);
-        double s = 0;
-        for (double x : v) s += (x - m) * (x - m);
-        return Math.sqrt(s / v.length);
-    }
-
-    private static double min(double[] v) {
-        double m = v[0];
-        for (double x : v) if (x < m) m = x;
-        return m;
-    }
-
-    private static double max(double[] v) {
-        double m = v[0];
-        for (double x : v) if (x > m) m = x;
-        return m;
     }
 }

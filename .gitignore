@@ -3,4 +3,4 @@ results_*.csv
 taguchi_*.csv
 stats_*.csv
 .vscode/
-results/
+results/*

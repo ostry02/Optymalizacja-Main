@@ -3,7 +3,6 @@ package model;
 import java.io.*;
 import java.util.*;
 
-// wczytuje dane z pliku csv
 public class Instance {
 
     public List<Attraction> attractions;
@@ -16,7 +15,6 @@ public class Instance {
         this.n = attractions.size();
     }
 
-    // odleglosc euklidesowa
     public double distance(int i,int j) {
         double dx = attractions.get(i).x - attractions.get(j).x;
         double dy = attractions.get(i).y - attractions.get(j).y;
@@ -30,7 +28,6 @@ public class Instance {
         return busEdges.contains((long)lo * 100000 + hi);
     }
 
-    // ladowanie z pliku csv
     public static Instance loadFromCSV(String path) throws IOException {
         List<Attraction> atr = new ArrayList<>();
         Set<Long> edges = new HashSet<>();

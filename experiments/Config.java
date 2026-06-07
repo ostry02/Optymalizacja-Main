@@ -19,9 +19,9 @@ public class Config {
     public double getAlpha() { return Double.parseDouble(get("alpha")); }
 
     public String[] getInstances() {
-        return Arrays.stream(get("instances").split(","))
-                .map(String::trim)
-                .toArray(String[]::new);
+        String[] parts = get("instances").split(",");
+        for (int i=0; i<parts.length; i++) parts[i] = parts[i].trim();
+        return parts;
     }
 
     // PSO
@@ -47,7 +47,6 @@ public class Config {
 
     private String get(String key) {
         String val = props.getProperty(key);
-        if (val == null) throw new RuntimeException("Missing config key: " + key);
         return val.trim();
     }
 }
