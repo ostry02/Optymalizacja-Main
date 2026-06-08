@@ -58,7 +58,7 @@ public class PSO {
 
         // glowna petla
         for (int iter=0; iter<maxIter;iter++) {
-            for (int p = 0; p<swarm.size(); p++) {
+            for (int p =0; p<swarm.size(); p++) {
                 Particle particle = swarm.get(p);
                 List<int[]> newVel = new ArrayList<>();
 
