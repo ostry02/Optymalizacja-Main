@@ -39,9 +39,12 @@ public class Taguchi {
 
     private Taguchi() {}
 
-    public static void runPSO(Instance instance, double penalty, double alpha,
+    public record Result(String algo, String[] factors, double[] params,
+                         double fitness, Evaluation.EvalResult eval,
+                         long timeMs, double[] history) {}
+
+    public static Result runPSO(Instance instance, double penalty, double alpha,
                               int replications, long baseSeed) throws IOException {
-        System.out.println("\n=== Taguchi L9 - PSO (n=" + instance.n + ") ===");
 
         double[][] results = new double[9][replications];
 
@@ -62,21 +65,30 @@ public class Taguchi {
         }
 
         double[] sn = computeSN(results);
-        printTable(PSO_FACTORS,
-                new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
-                sn, results);
         int[] best = bestLevels(sn);
-        printOptimal("PSO", PSO_FACTORS,
-                new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)}, best);
         saveCsv("results/taguchi_pso_n" + instance.n + ".csv", PSO_FACTORS,
                 new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
                 sn, results);
+
+        double optInertia = PSO_INERTIA[best[0]];
+        double optC1 = PSO_C1[best[1]];
+        double optC2 = PSO_C2[best[2]];
+        int optParticles = PSO_PARTICLES[best[3]];
+
+        PSO confirm = new PSO(instance, penalty, alpha,
+                optParticles, PSO_ITER, optInertia, optC1, optC2,
+                new Random(baseSeed + 999_000L));
+        long t0 = System.currentTimeMillis();
+        confirm.run();
+        long ms = System.currentTimeMillis() - t0;
+
+        return new Result("PSO", PSO_FACTORS,
+                new double[]{optInertia, optC1, optC2, optParticles},
+                confirm.getBestFitness(), confirm.getBestResult(), ms, confirm.getHistory());
     }
 
-    public static void runACO(Instance instance, double penalty, double alpha,
+    public static Result runACO(Instance instance, double penalty, double alpha,
                               int replications, long baseSeed) throws IOException {
-        System.out.println("\n=== Taguchi L9 - ACO (n=" + instance.n + ") ===");
-
         double[][] results = new double[9][replications];
 
         for (int exp = 0; exp < 9; exp++) {
@@ -96,18 +108,28 @@ public class Taguchi {
         }
 
         double[] sn = computeSN(results);
-        printTable(ACO_FACTORS,
-                new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
-                sn, results);
         int[] best = bestLevels(sn);
-        printOptimal("ACO", ACO_FACTORS,
-                new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)}, best);
         saveCsv("results/taguchi_aco_n" + instance.n + ".csv", ACO_FACTORS,
                 new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
                 sn, results);
+
+        double optAlpha = ACO_ALPHA_LEV[best[0]];
+        double optBeta = ACO_BETA_LEV[best[1]];
+        double optEvap = ACO_EVAP_LEV[best[2]];
+        int optAnts = ACO_ANTS[best[3]];
+
+        ACO confirm = new ACO(instance, penalty, alpha,
+                optAnts, ACO_ITER, optAlpha, optBeta, optEvap, 100.0,
+                new Random(baseSeed + 999_000L));
+        long t0 = System.currentTimeMillis();
+        confirm.run();
+        long ms = System.currentTimeMillis() - t0;
+
+        return new Result("ACO", ACO_FACTORS,
+                new double[]{optAlpha, optBeta, optEvap, optAnts},
+                confirm.getBestFitness(), confirm.getBestResult(), ms, confirm.getHistory());
     }
 
-    // smaller-is-better: SN = -10 * log10(mean(y^2))
     private static double[] computeSN(double[][] results) {
         double[] sn = new double[results.length];
         for (int exp = 0; exp < results.length; exp++) {
@@ -142,27 +164,6 @@ public class Taguchi {
         return best;
     }
 
-    private static void printTable(String[] factors, double[][] levels, double[] sn, double[][] results) {
-        System.out.printf("%-4s  %-12s %-12s %-12s %-12s  %8s  %10s%n",
-                "Exp", factors[0], factors[1], factors[2], factors[3], "meanFit", "SN");
-        System.out.println("-".repeat(76));
-        for (int exp = 0; exp < 9; exp++) {
-            int[] row = L9[exp];
-            double mean = Arrays.stream(results[exp]).average().orElse(0);
-            System.out.printf("%-4d  %-12.4f %-12.4f %-12.4f %-12.4f  %8.2f  %10.4f%n",
-                    exp + 1,
-                    levels[0][row[0]], levels[1][row[1]],
-                    levels[2][row[2]], levels[3][row[3]],
-                    mean, sn[exp]);
-        }
-    }
-
-    private static void printOptimal(String algo, String[] factors, double[][] levels, int[] best) {
-        System.out.println("\nOptimal " + algo + " parameters:");
-        for (int f = 0; f < factors.length; f++)
-            System.out.printf("  %s = %.4f (level %d)%n", factors[f], levels[f][best[f]], best[f] + 1);
-    }
-
     private static void saveCsv(String filename, String[] factors, double[][] levels,
                                 double[] sn, double[][] results) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
@@ -183,7 +184,6 @@ public class Taguchi {
                 pw.println();
             }
         }
-        System.out.println("Saved: " + filename);
     }
 
     private static double[] toDouble(int[] arr) {

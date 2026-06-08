@@ -5,28 +5,31 @@ import model.*;
 
 public class Stats {
 
-    private Stats() {}
-
     public static void save(Instance instance, double penalty, double alpha,
-                            Evaluation.EvalResult psoResult, long psoMs,
-                            Evaluation.EvalResult acoResult, long acoMs) throws IOException {
-        saveCsv(instance.n, psoMs, psoResult, acoMs, acoResult, penalty, alpha);
-    }
+                            Taguchi.Result pso, Taguchi.Result aco) throws IOException {
+                                
+        String filename = "results/stats_n" + instance.n + ".csv";
+        PrintWriter pw = new PrintWriter(new FileWriter(filename));
 
-    private static void saveCsv(int n,
-                                 long psoMs, Evaluation.EvalResult p,
-                                 long acoMs, Evaluation.EvalResult a,
-                                 double penalty, double alpha) throws IOException {
-        String filename = "results/stats_n" + n + ".csv";
-        try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
-            pw.println("algo,fitness,time_ms,dist,noBus,penalty_cost,attr,attr_score,total");
-            pw.printf("PSO,%.6f,%d,%.4f,%d,%.4f,%.4f,%.4f,%.6f%n",
-                    p.total(), psoMs, p.dist(), p.noBus(), p.penCost(), p.attr(), p.attrScore(), p.total());
-            pw.printf("ACO,%.6f,%d,%.4f,%d,%.4f,%.4f,%.4f,%.6f%n",
-                    a.total(), acoMs, a.dist(), a.noBus(), a.penCost(), a.attr(), a.attrScore(), a.total());
-            pw.println();
-            pw.printf("# penalty=%.4f  alpha=%.4f%n", penalty, alpha);
+        pw.println("algo,fitness,time_ms,dist,noBus,penalty_cost,attr,attr_score,total,best_params");
+
+        Taguchi.Result[] wyniki = {pso, aco};
+        for (Taguchi.Result res : wyniki) {
+            Evaluation.EvalResult e = res.eval();
+
+            String params = "";
+            for (int i = 0; i < res.factors().length; i++) {
+                if (i > 0) params += "; ";
+                params += res.factors()[i] + "=" + String.format("%.4f", res.params()[i]);
+            }
+
+            pw.printf("%s,%.6f,%d,%.4f,%d,%.4f,%.4f,%.4f,%.6f,%s%n",
+                    res.algo(), e.total(), res.timeMs(), e.dist(), e.noBus(),
+                    e.penCost(), e.attr(), e.attrScore(), e.total(), params);
         }
-        System.out.println("Saved: " + filename);
+
+        pw.println();
+        pw.printf("# penalty=%.4f  alpha=%.4f%n", penalty, alpha);
+        pw.close();
     }
 }
