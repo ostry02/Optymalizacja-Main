@@ -16,6 +16,7 @@ public class ACO {
     private final double penalty;
     private final double alpha;
     private final Random rng;
+    private final int routeLen;   // ile atrakcji ma odwiedzic]
 
     private double[][] tau;
     private double[][] eta;
@@ -28,9 +29,17 @@ public class ACO {
     private static final double TAU0 = 1.0;
     private static final double EPS = 1e-6;
 
+    // domyslnie odwiedzamy wszystkie atrakcje z instancji
     public ACO(Instance instance, double penalty, double alpha,
                int nAnts, int maxIter, double alphaAco, double betaAco,
                double evaporationRate, double Q, Random rng) {
+        this(instance, penalty, alpha, nAnts, maxIter, alphaAco, betaAco,
+                evaporationRate, Q, rng, instance.n);
+    }
+
+    public ACO(Instance instance, double penalty, double alpha,
+               int nAnts, int maxIter, double alphaAco, double betaAco,
+               double evaporationRate, double Q, Random rng, int routeLen) {
         this.instance = instance;
         this.penalty = penalty;
         this.alpha = alpha;
@@ -41,6 +50,7 @@ public class ACO {
         this.evaporationRate = evaporationRate;
         this.Q = Q;
         this.rng = rng;
+        this.routeLen = routeLen;
     }
 
     public int[] run() {
@@ -56,7 +66,7 @@ public class ACO {
             double iterBestFit = Double.MAX_VALUE;
 
             for (int ant = 0; ant < nAnts; ant++) {
-                int[] tour = buildTour(n);
+                int[] tour = buildTour();
                 Evaluation.EvalResult result = Evaluation.evaluate(tour, instance, penalty, alpha);
                 double fit = result.total();
                 if (fit < iterBestFit) {
@@ -66,7 +76,7 @@ public class ACO {
                 if (fit < bestFitness) {
                     bestFitness = fit;
                     bestResult = result;
-                    bestRoute = Arrays.copyOf(tour, n);
+                    bestRoute = tour;
                 }
             }
 
@@ -75,7 +85,7 @@ public class ACO {
 
             history[iter] = bestFitness;
         }
-        return Arrays.copyOf(bestRoute, n);
+        return bestRoute;
     }
 
     public double getBestFitness() { return bestFitness; }
@@ -96,14 +106,16 @@ public class ACO {
                             / Math.max(instance.distance(i, j), EPS);
     }
 
-    private int[] buildTour(int n) {
+    private int[] buildTour() {
+        int n = instance.n;
         boolean[] visited = new boolean[n];
-        int[] tour = new int[n];
+        //odwiedza tylko routeLen atrakcji
+        int[] tour = new int[routeLen];
         int current = rng.nextInt(n);
         tour[0] = current;
         visited[current] = true;
 
-        for (int step = 1; step < n; step++) {
+        for (int step = 1; step < routeLen; step++) {
             double[] weight = new double[n];
             double sum = 0;
             for (int j = 0; j < n; j++) {
