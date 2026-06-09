@@ -16,13 +16,14 @@ public class PSO {
     double penalty;
     double alpha;
     Random rng;
-    int routeLen;   // ile atrakcji faktycznie odwiedzamy (prefiks permutacji)
+    int routeLen;   // ile atrakcji odwiedzamy 
 
     int[] bestRoute;
     double bestFitness;
     Evaluation.EvalResult bestResult;
     double[] history;
 
+    // domyslnie odwiedzamy wszystkie atrakcje z instancji
     public PSO(Instance instance, double penalty, double alpha,
                int nParticles, int maxIter, double inertia, double c1, double c2,
                Random rng) {
@@ -49,7 +50,7 @@ public class PSO {
         bestFitness = Double.MAX_VALUE;
         double[] hist = new double[maxIter];
 
-        // tworze roj losowych permutacji
+        // tworze roj permutacji
         List<Particle> swarm = new ArrayList<>();
         for (int p=0; p<nParticles; p++) {
             int[] pos = randomPerm(n);
@@ -64,7 +65,6 @@ public class PSO {
             }
         }
 
-        // glowna petla
         for (int iter=0; iter<maxIter;iter++) {
             for (int p =0; p<swarm.size(); p++) {
                 Particle particle = swarm.get(p);
@@ -77,14 +77,14 @@ public class PSO {
                     }
                 }
 
-                // skladowa poznawcza - w strone personal best
+                // skladowa poznawcza idzie w strone personal best
                 double r1 = rng.nextDouble();
                 List<int[]> diffP = computeDiff(particle.position, particle.personalBest);
                 for(int s=0; s<diffP.size(); s++) {
                     if(rng.nextDouble() < c1*r1) newVel.add(diffP.get(s));
                 }
 
-                // skladowa spoleczna - w strone global best
+                // skladowa spoleczna idzie w strone global best
                 double r2 = rng.nextDouble();
                 List<int[]> diffG = computeDiff(particle.position, bestRoute);
                 for (int s=0; s<diffG.size(); s++) {
@@ -93,7 +93,7 @@ public class PSO {
 
                 particle.velocity = newVel;
 
-                // aplikuje swapy do nowej pozycji
+                // dodaje swapy do nowej pozycji
                 int[] newPos = new int[n];
                 for (int i=0; i<n; i++) newPos[i] = particle.position[i];
                 for (int s=0; s<newVel.size(); s++) {
@@ -119,7 +119,7 @@ public class PSO {
         }
 
         history = hist;
-        // zwracam tylko odwiedzany prefiks (routeLen atrakcji)
+        // zwracam tylko odwiedzane atrakcje 
         int[] result = new int[routeLen];
         for (int i=0; i<routeLen; i++) result[i] = bestRoute[i];
         return result;

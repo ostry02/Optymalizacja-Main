@@ -8,7 +8,7 @@ public class Evaluation {
         return evaluate(route, instance, penalty, alpha, route.length);
     }
 
-    // Liczy fitness tylko dla pierwszych len atrakcji trasy (odwiedzany podzbior).
+    // wersja liczaca fitness tylko dla pierwszych len atrakcji trasy
     public static EvalResult evaluate(int[] route, Instance instance, double penalty, double alpha, int len) {
         double dist = 0;
         int noBus = 0;

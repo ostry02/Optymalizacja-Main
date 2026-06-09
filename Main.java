@@ -14,10 +14,8 @@ public class Main {
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
-        // interaktywny eksplorator trasy na datasetach 50 i 200
         Explorer.run(cfg, penalty, alpha, seed);
-
-        // batch eksperymentow Taguchi na wszystkich instancjach z config
+        System.out.println("Start taguchi");
         runBatch(cfg, penalty, alpha, seed);
     }
 

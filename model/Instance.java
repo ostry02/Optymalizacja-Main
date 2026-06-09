@@ -25,13 +25,13 @@ public class Instance {
         return busEdges.contains(i + "," + j);
     }
 
-    // Pula atrakcji o atrakcyjnosci >= minAttr (z przemapowanymi indeksami i krawedziami).
-    // To z tej puli algorytm wybiera najlepszy podzbior do odwiedzenia.
     public Instance filter(double minAttr) {
+        // wybieram indeksy atrakcji spelniajace prog
         List<Integer> chosen = new ArrayList<>();
         for (int i = 0; i < attractions.size(); i++)
             if (attractions.get(i).attractiveness >= minAttr) chosen.add(i);
 
+        // przenumerowanie starych indeks
         Map<Integer, Integer> remap = new HashMap<>();
         List<Attraction> subAttr = new ArrayList<>();
         for (int newIdx = 0; newIdx < chosen.size(); newIdx++) {
@@ -40,6 +40,7 @@ public class Instance {
             subAttr.add(attractions.get(oldIdx));
         }
 
+        // przepisuje polaczeni na nowe indeksy
         Set<String> subEdges = new HashSet<>();
         for (int oi : chosen) {
             for (int oj : chosen) {

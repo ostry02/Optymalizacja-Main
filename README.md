@@ -8,14 +8,6 @@ f = total_distance + penalty * liczba_przejsc_bez_autobusu - alpha * suma_atrakc
 ```
 
 Porownanie dwoch metaheurystyk: **PSO** (permutacyjne, swap-velocity) i **ACO** (klasyczny, eta = (1+attr)/dist).
----
-
-## Jak odpalic
-
-```
-javac Main.java model/*.java algorithms/*.java experiments/*.java
-java Main
-```
 
 Parametry sa wczytywane z `config.properties` (seed, penalty, alpha, listy instancji, parametry PSO/ACO, liczba powtorzen).
 Instancje sa wczytywane z `data/instance_*.csv`
