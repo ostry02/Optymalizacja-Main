@@ -25,6 +25,32 @@ public class Instance {
         return busEdges.contains(i + "," + j);
     }
 
+    // Pula atrakcji o atrakcyjnosci >= minAttr (z przemapowanymi indeksami i krawedziami).
+    // To z tej puli algorytm wybiera najlepszy podzbior do odwiedzenia.
+    public Instance filter(double minAttr) {
+        List<Integer> chosen = new ArrayList<>();
+        for (int i = 0; i < attractions.size(); i++)
+            if (attractions.get(i).attractiveness >= minAttr) chosen.add(i);
+
+        Map<Integer, Integer> remap = new HashMap<>();
+        List<Attraction> subAttr = new ArrayList<>();
+        for (int newIdx = 0; newIdx < chosen.size(); newIdx++) {
+            int oldIdx = chosen.get(newIdx);
+            remap.put(oldIdx, newIdx);
+            subAttr.add(attractions.get(oldIdx));
+        }
+
+        Set<String> subEdges = new HashSet<>();
+        for (int oi : chosen) {
+            for (int oj : chosen) {
+                if (oi != oj && hasBus(oi, oj))
+                    subEdges.add(remap.get(oi) + "," + remap.get(oj));
+            }
+        }
+
+        return new Instance(subAttr, subEdges);
+    }
+
     public static Instance loadFromCSV(String path) throws IOException {
         List<Attraction> atr = new ArrayList<>();
         Set<String> edges = new HashSet<>();

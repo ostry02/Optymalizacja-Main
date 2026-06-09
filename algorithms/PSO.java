@@ -16,6 +16,7 @@ public class PSO {
     double penalty;
     double alpha;
     Random rng;
+    int routeLen;   // ile atrakcji faktycznie odwiedzamy (prefiks permutacji)
 
     int[] bestRoute;
     double bestFitness;
@@ -25,6 +26,12 @@ public class PSO {
     public PSO(Instance instance, double penalty, double alpha,
                int nParticles, int maxIter, double inertia, double c1, double c2,
                Random rng) {
+        this(instance, penalty, alpha, nParticles, maxIter, inertia, c1, c2, rng, instance.n);
+    }
+
+    public PSO(Instance instance, double penalty, double alpha,
+               int nParticles, int maxIter, double inertia, double c1, double c2,
+               Random rng, int routeLen) {
         this.instance = instance;
         this.penalty = penalty;
         this.alpha = alpha;
@@ -34,6 +41,7 @@ public class PSO {
         this.c1 = c1;
         this.c2 = c2;
         this.rng = rng;
+        this.routeLen = routeLen;
     }
 
     public int[] run() {
@@ -45,7 +53,7 @@ public class PSO {
         List<Particle> swarm = new ArrayList<>();
         for (int p=0; p<nParticles; p++) {
             int[] pos = randomPerm(n);
-            Evaluation.EvalResult result = Evaluation.evaluate(pos, instance, penalty, alpha);
+            Evaluation.EvalResult result = Evaluation.evaluate(pos, instance, penalty, alpha, routeLen);
             double fit = result.total();
             swarm.add(new Particle(pos, fit));
             if(fit < bestFitness) {
@@ -96,7 +104,7 @@ public class PSO {
                 }
                 particle.position = newPos;
 
-                Evaluation.EvalResult result = Evaluation.evaluate(newPos, instance, penalty, alpha);
+                Evaluation.EvalResult result = Evaluation.evaluate(newPos, instance, penalty, alpha, routeLen);
                 double fit = result.total();
                 particle.tryUpdatePBest(newPos, fit);
 
@@ -111,8 +119,9 @@ public class PSO {
         }
 
         history = hist;
-        int[] result = new int[n];
-        for (int i=0; i<n; i++) result[i] = bestRoute[i];
+        // zwracam tylko odwiedzany prefiks (routeLen atrakcji)
+        int[] result = new int[routeLen];
+        for (int i=0; i<routeLen; i++) result[i] = bestRoute[i];
         return result;
     }
 

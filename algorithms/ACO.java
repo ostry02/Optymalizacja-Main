@@ -16,6 +16,7 @@ public class ACO {
     private final double penalty;
     private final double alpha;
     private final Random rng;
+    private final int routeLen;   // ile atrakcji faktycznie odwiedzamy (prefiks tury)
 
     private double[][] tau;
     private double[][] eta;
@@ -31,6 +32,13 @@ public class ACO {
     public ACO(Instance instance, double penalty, double alpha,
                int nAnts, int maxIter, double alphaAco, double betaAco,
                double evaporationRate, double Q, Random rng) {
+        this(instance, penalty, alpha, nAnts, maxIter, alphaAco, betaAco,
+                evaporationRate, Q, rng, instance.n);
+    }
+
+    public ACO(Instance instance, double penalty, double alpha,
+               int nAnts, int maxIter, double alphaAco, double betaAco,
+               double evaporationRate, double Q, Random rng, int routeLen) {
         this.instance = instance;
         this.penalty = penalty;
         this.alpha = alpha;
@@ -41,6 +49,7 @@ public class ACO {
         this.evaporationRate = evaporationRate;
         this.Q = Q;
         this.rng = rng;
+        this.routeLen = routeLen;
     }
 
     public int[] run() {
@@ -57,7 +66,7 @@ public class ACO {
 
             for (int ant = 0; ant < nAnts; ant++) {
                 int[] tour = buildTour(n);
-                Evaluation.EvalResult result = Evaluation.evaluate(tour, instance, penalty, alpha);
+                Evaluation.EvalResult result = Evaluation.evaluate(tour, instance, penalty, alpha, routeLen);
                 double fit = result.total();
                 if (fit < iterBestFit) {
                     iterBestFit = fit;
@@ -75,7 +84,8 @@ public class ACO {
 
             history[iter] = bestFitness;
         }
-        return Arrays.copyOf(bestRoute, n);
+        // zwracam tylko odwiedzany prefiks (routeLen atrakcji)
+        return Arrays.copyOf(bestRoute, routeLen);
     }
 
     public double getBestFitness() { return bestFitness; }
@@ -146,7 +156,8 @@ public class ACO {
     private void deposit(int[] tour, double cost) {
         if (cost <= 0) return;
         double amount = Q / cost;
-        for (int i = 0; i < tour.length - 1; i++) {
+        // wzmacniam tylko krawedzie odwiedzanego prefiksu
+        for (int i = 0; i < routeLen - 1; i++) {
             tau[tour[i]][tour[i + 1]] += amount;
             tau[tour[i + 1]][tour[i]] += amount;
         }

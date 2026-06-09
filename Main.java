@@ -6,7 +6,6 @@ import experiments.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        // config
         Locale.setDefault(Locale.US);
         Config cfg = new Config("config.properties");
         new File("results").mkdirs();
@@ -14,6 +13,15 @@ public class Main {
         long seed = cfg.getSeed();
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
+
+        // interaktywny eksplorator trasy na datasetach 50 i 200
+        Explorer.run(cfg, penalty, alpha, seed);
+
+        // batch eksperymentow Taguchi na wszystkich instancjach z config
+        runBatch(cfg, penalty, alpha, seed);
+    }
+
+    static void runBatch(Config cfg, double penalty, double alpha, long seed) throws IOException {
         String[] files = cfg.getInstances();
         long taguchiSeed = seed + 9000L;
 
@@ -25,21 +33,19 @@ public class Main {
             Taguchi.Result aco = Taguchi.runACO(inst, penalty, alpha,
                     cfg.getTaguchiReplications(), taguchiSeed + f);
 
-            String outName = "results/results_n" + inst.n + ".csv";
-            saveHistory(outName, pso.history(), aco.history());
-
+            saveHistory("results/results_n" + inst.n + ".csv", pso.history(), aco.history());
             Stats.save(inst, penalty, alpha, pso, aco);
         }
 
-        System.out.println("Wyniki zapisano w folderze results/");
+        System.out.println("Wyniki zapisano w results");
     }
 
     static void saveHistory(String fileName, double[] psoHist, double[] acoHist) throws IOException {
-        PrintWriter pw = new PrintWriter(new FileWriter(fileName));
-        pw.println("iteration,fitness_pso,fitness_aco");
-        for (int i = 0; i < psoHist.length; i++)
-            pw.println((i + 1) + "," + String.format("%.6f", psoHist[i])
-                    + "," + String.format("%.6f", acoHist[i]));
-        pw.close();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            pw.println("iteration,fitness_pso,fitness_aco");
+            for (int i = 0; i < psoHist.length; i++)
+                pw.println((i + 1) + "," + String.format("%.6f", psoHist[i])
+                        + "," + String.format("%.6f", acoHist[i]));
+        }
     }
 }
