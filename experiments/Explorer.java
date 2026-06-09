@@ -48,15 +48,13 @@ public class Explorer {
         PSO pso = new PSO(pool, penalty, alpha,
                 cfg.getPsoParticles(), cfg.getPsoIterations(),
                 cfg.getPsoInertia(), cfg.getPsoC1(), cfg.getPsoC2(), new Random(seed), count);
-        int[] psoRoute = pso.run();
+        pso.run();
 
         ACO aco = new ACO(pool, penalty, alpha,
                 cfg.getAcoAnts(), cfg.getAcoIterations(),
                 cfg.getAcoAlpha(), cfg.getAcoBeta(), cfg.getAcoEvaporation(), cfg.getAcoQ(),
                 new Random(seed), count);
-        int[] acoRoute = aco.run();
-
-        int[] best = pso.getBestFitness() <= aco.getBestFitness() ? psoRoute : acoRoute;
+        aco.run();
 
         System.out.printf("%nPSO fitness = %.4f, ACO fitness = %.4f%n",
                 pso.getBestFitness(), aco.getBestFitness());
