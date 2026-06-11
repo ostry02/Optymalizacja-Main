@@ -14,7 +14,6 @@ public class Config {
         }
     }
 
-    public long getSeed() { return Long.parseLong(get("seed")); }
     public double getPenalty() { return Double.parseDouble(get("penalty")); }
     public double getAlpha() { return Double.parseDouble(get("alpha")); }
 
@@ -36,6 +35,9 @@ public class Config {
 
     // Taguchi
     public int getTaguchiReplications() { return Integer.parseInt(get("taguchi.replications")); }
+
+    // liczba niezaleznych przebiegow do statystyk (mean/std/min/max)
+    public int getStatsRuns() { return Integer.parseInt(get("stats.runs")); }
 
     private String get(String key) {
         String val = props.getProperty(key);
