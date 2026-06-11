@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.*;
-import model.*;
 import experiments.*;
 
 public class Main {
@@ -14,25 +13,22 @@ public class Main {
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
-        Explorer.run(cfg, penalty, alpha, seed);
-        System.out.println("Start taguchi");
-        runBatch(cfg, penalty, alpha, seed);
-    }
-
-    static void runBatch(Config cfg, double penalty, double alpha, long seed) throws IOException {
-        String[] files = cfg.getInstances();
         long taguchiSeed = seed + 9000L;
+        String[] datasets = cfg.getDatasets();
 
-        for (int f = 0; f < files.length; f++) {
-            Instance inst = Instance.loadFromCSV(files[f]);
+        for (int f = 0; f < datasets.length; f++) {
 
-            Taguchi.Result pso = Taguchi.runPSO(inst, penalty, alpha,
-                    cfg.getTaguchiReplications(), taguchiSeed + f);
-            Taguchi.Result aco = Taguchi.runACO(inst, penalty, alpha,
-                    cfg.getTaguchiReplications(), taguchiSeed + f);
+            Explorer.Selection sel = Explorer.load(cfg, datasets[f]);
 
-            saveHistory("results/results_n" + inst.n + ".csv", pso.history(), aco.history());
-            Stats.save(inst, penalty, alpha, pso, aco);
+            System.out.println("Start taguchi: " + sel.label());
+
+            Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+            Taguchi.Result aco = Taguchi.runACO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+
+            saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
+            Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
         }
 
         System.out.println("Wyniki zapisano w results");

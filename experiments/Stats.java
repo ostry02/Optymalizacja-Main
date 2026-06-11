@@ -5,10 +5,10 @@ import model.*;
 
 public class Stats {
 
-    public static void save(Instance instance, double penalty, double alpha,
+    public static void save(Instance instance, String label, double penalty, double alpha,
                             Taguchi.Result pso, Taguchi.Result aco) throws IOException {
-                                
-        String filename = "results/stats_n" + instance.n + ".csv";
+
+        String filename = "results/stats_" + label + ".csv";
         PrintWriter pw = new PrintWriter(new FileWriter(filename));
 
         pw.println("algo,fitness,time_ms,dist,noBus,penalty_cost,attr,attr_score,total,best_params");

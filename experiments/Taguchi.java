@@ -43,8 +43,8 @@ public class Taguchi {
                          double fitness, Evaluation.EvalResult eval,
                          long timeMs, double[] history) {}
 
-    public static Result runPSO(Instance instance, double penalty, double alpha,
-                              int replications, long baseSeed) throws IOException {
+    public static Result runPSO(Instance instance, int routeLen, double penalty, double alpha,
+                              int replications, long baseSeed, String label) throws IOException {
 
         double[][] results = new double[9][replications];
 
@@ -58,7 +58,7 @@ public class Taguchi {
             for (int r = 0; r < replications; r++) {
                 PSO pso = new PSO(instance, penalty, alpha,
                         nParticles, PSO_ITER, inertia, c1, c2,
-                        new Random(baseSeed + exp * 1000L + r));
+                        new Random(baseSeed + exp * 1000L + r), routeLen);
                 pso.run();
                 results[exp][r] = pso.getBestFitness();
             }
@@ -66,7 +66,7 @@ public class Taguchi {
 
         double[] sn = computeSN(results);
         int[] best = bestLevels(sn);
-        saveCsv("results/taguchi_pso_n" + instance.n + ".csv", PSO_FACTORS,
+        saveCsv("results/taguchi_pso_" + label + ".csv", PSO_FACTORS,
                 new double[][]{PSO_INERTIA, PSO_C1, PSO_C2, toDouble(PSO_PARTICLES)},
                 sn, results);
 
@@ -77,7 +77,7 @@ public class Taguchi {
 
         PSO confirm = new PSO(instance, penalty, alpha,
                 optParticles, PSO_ITER, optInertia, optC1, optC2,
-                new Random(baseSeed + 999_000L));
+                new Random(baseSeed + 999_000L), routeLen);
         long t0 = System.currentTimeMillis();
         confirm.run();
         long ms = System.currentTimeMillis() - t0;
@@ -87,8 +87,8 @@ public class Taguchi {
                 confirm.getBestFitness(), confirm.getBestResult(), ms, confirm.getHistory());
     }
 
-    public static Result runACO(Instance instance, double penalty, double alpha,
-                              int replications, long baseSeed) throws IOException {
+    public static Result runACO(Instance instance, int routeLen, double penalty, double alpha,
+                              int replications, long baseSeed, String label) throws IOException {
         double[][] results = new double[9][replications];
 
         for (int exp = 0; exp < 9; exp++) {
@@ -101,7 +101,7 @@ public class Taguchi {
             for (int r = 0; r < replications; r++) {
                 ACO aco = new ACO(instance, penalty, alpha,
                         nAnts, ACO_ITER, alphaAco, betaAco, evap, 100.0,
-                        new Random(baseSeed + exp * 1000L + r));
+                        new Random(baseSeed + exp * 1000L + r), routeLen);
                 aco.run();
                 results[exp][r] = aco.getBestFitness();
             }
@@ -109,7 +109,7 @@ public class Taguchi {
 
         double[] sn = computeSN(results);
         int[] best = bestLevels(sn);
-        saveCsv("results/taguchi_aco_n" + instance.n + ".csv", ACO_FACTORS,
+        saveCsv("results/taguchi_aco_" + label + ".csv", ACO_FACTORS,
                 new double[][]{ACO_ALPHA_LEV, ACO_BETA_LEV, ACO_EVAP_LEV, toDouble(ACO_ANTS)},
                 sn, results);
 
@@ -120,7 +120,7 @@ public class Taguchi {
 
         ACO confirm = new ACO(instance, penalty, alpha,
                 optAnts, ACO_ITER, optAlpha, optBeta, optEvap, 100.0,
-                new Random(baseSeed + 999_000L));
+                new Random(baseSeed + 999_000L), routeLen);
         long t0 = System.currentTimeMillis();
         confirm.run();
         long ms = System.currentTimeMillis() - t0;
