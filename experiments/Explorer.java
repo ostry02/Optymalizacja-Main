@@ -3,25 +3,42 @@ package experiments;
 import java.io.*;
 import java.util.*;
 import model.*;
-import algorithms.*;
 
 public class Explorer {
 
-    public static void run(Config cfg, double penalty, double alpha, long seed) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        Boolean i = true;
+    // wybor uzytkownika: pula atrakcji po filtrze, liczba odwiedzanych, etykieta datasetu
+    public record Selection(Instance pool, int count, String label) {}
 
-        while (i==true) {
-            System.out.print("\nWybierz dataset [50/200]");
+    public static Selection run() throws IOException {
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\nWybierz dataset:");
+            System.out.println("  1) 100 dense");
+            System.out.println("  2) 100 sparse");
+            System.out.println("  3) 200 dense");
+            System.out.println("  4) 200 sparse");
+            System.out.println("  5) 500 dense");
+            System.out.println("  6) 500 sparse");
+            System.out.print("> ");
             String choice = sc.nextLine().trim();
 
-            String file;
-            if (choice.equals("50")) file = "data/instance_50.csv";
-            else file = "data/instance_200.csv";
+            String file, label;
+            switch (choice) {
+                case "1": file = "data/instance_100_dense.csv";  label = "100_dense";  break;
+                case "2": file = "data/instance_100_sparse.csv"; label = "100_sparse"; break;
+                case "3": file = "data/instance_200_dense.csv";  label = "200_dense";  break;
+                case "4": file = "data/instance_200_sparse.csv"; label = "200_sparse"; break;
+                case "5": file = "data/instance_500_dense.csv";  label = "500_dense";  break;
+                case "6": file = "data/instance_500_sparse.csv"; label = "500_sparse"; break;
+                default:
+                    System.out.println("Nieprawidlowy wybor.");
+                    continue;
+            }
 
             Instance full = Instance.loadFromCSV(file);
 
-            System.out.print("Ile atrakcji chcesz zobaczyc: ");
+            System.out.print("Ile atrakcji chcesz odwiedzic: ");
             int count = Integer.parseInt(sc.nextLine().trim());
 
             System.out.print("Minimalna atrakcyjnosc (np. 6.0): ");
@@ -35,34 +52,10 @@ public class Explorer {
             }
             if (count >= pool.n) {
                 count = pool.n;
-                System.out.println(pool.n +" atrakcji spelnia");
+                System.out.println(pool.n + " atrakcji spelnia prog.");
             }
 
-            optimize(pool, count, cfg, penalty, alpha, seed);
-            i= false;
+            return new Selection(pool, count, label);
         }
-    }
-
-    private static void optimize(Instance pool, int count, Config cfg,
-                                 double penalty, double alpha, long seed) {
-        PSO pso = new PSO(pool, penalty, alpha,
-                cfg.getPsoParticles(), cfg.getPsoIterations(),
-                cfg.getPsoInertia(), cfg.getPsoC1(), cfg.getPsoC2(), new Random(seed), count);
-        pso.run();
-
-        ACO aco = new ACO(pool, penalty, alpha,
-                cfg.getAcoAnts(), cfg.getAcoIterations(),
-                cfg.getAcoAlpha(), cfg.getAcoBeta(), cfg.getAcoEvaporation(), cfg.getAcoQ(),
-                new Random(seed), count);
-        aco.run();
-
-        model.Evaluation.EvalResult psoR = pso.getBestResult();
-        model.Evaluation.EvalResult acoR = aco.getBestResult();
-
-        System.out.printf("%nPSO: fitness = %.4f  |  penalty = %.4f  |  attractiveness = %.4f%n",
-                pso.getBestFitness(), psoR.penCost(), psoR.attr());
-        System.out.printf("ACO: fitness = %.4f  |  penalty = %.4f  |  attractiveness = %.4f%n",
-                aco.getBestFitness(), acoR.penCost(), acoR.attr());
-
     }
 }
