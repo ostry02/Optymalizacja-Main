@@ -4,3 +4,4 @@ taguchi_*.csv
 stats_*.csv
 .vscode/
 results/*
+.DS_Store
