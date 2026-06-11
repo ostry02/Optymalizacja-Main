@@ -71,16 +71,25 @@ public class PSO {
 
                 // skladowa poznawcza idzie w strone personal best
                 double r1 = rng.nextDouble();
+                double probP = Math.min(1.0, c1 * r1);
                 List<int[]> diffP = computeDiff(particle.position, particle.personalBest);
                 for(int s=0; s<diffP.size(); s++) {
-                    if(rng.nextDouble() < c1*r1) newVel.add(diffP.get(s));
+                    if(rng.nextDouble() < probP) newVel.add(diffP.get(s));
                 }
 
                 // skladowa spoleczna idzie w strone global best
                 double r2 = rng.nextDouble();
+                double probG = Math.min(1.0, c2 * r2);
                 List<int[]> diffG = computeDiff(particle.position, bestRoute);
                 for (int s=0; s<diffG.size(); s++) {
-                    if(rng.nextDouble() < c2*r2) newVel.add(diffG.get(s));
+                    if(rng.nextDouble() < probG) newVel.add(diffG.get(s));
+                }
+
+                // limit rozmiaru predkosci - zapobiega eksplozji
+                int maxVelSize = Math.max(1, routeLen / 2);
+                if (newVel.size() > maxVelSize) {
+                    Collections.shuffle(newVel, rng);
+                    newVel = newVel.subList(0, maxVelSize);
                 }
 
                 particle.velocity = newVel;

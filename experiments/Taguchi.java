@@ -22,8 +22,8 @@ public class Taguchi {
 
     // PSO factor levels
     private static final double[] PSO_INERTIA = {0.4, 0.7, 0.9};
-    private static final double[] PSO_C1 = {1.0, 1.5, 2.0};
-    private static final double[] PSO_C2 = {1.0, 1.5, 2.0};
+    private static final double[] PSO_C1 = {0.3, 0.5, 0.8};
+    private static final double[] PSO_C2 = {0.3, 0.5, 0.8};
     private static final int[] PSO_PARTICLES = {15, 30, 50};
     private static final String[] PSO_FACTORS = {"inertia", "c1", "c2", "nParticles"};
 
