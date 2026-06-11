@@ -13,13 +13,16 @@ public class Main {
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
+        double pBus       = cfg.getPBus();
+        double penaltyMin = cfg.getPenaltyMin();
+        double penaltyMax = cfg.getPenaltyMax();
+
         long taguchiSeed = seed + 9000L;
         String[] datasets = cfg.getDatasets();
 
         for (int f = 0; f < datasets.length; f++) {
 
             Explorer.Selection sel = Explorer.load(cfg, datasets[f]);
-
             System.out.println("Start taguchi: " + sel.label());
 
             Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
@@ -29,6 +32,40 @@ public class Main {
 
             saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
             Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
+
+            // uruchamiam 3 pozostale warianty PSO z parametrami znalezionymi przez Taguchi
+            double[] p = pso.params();
+            double optInertia  = p[0];
+            double optC1       = p[1];
+            double optC2       = p[2];
+            int    optParticles = (int) Math.round(p[3]);
+
+            long varSeed = taguchiSeed + f + 1_000_000L;
+
+            System.out.println("PSO warianty: " + sel.label());
+
+            Taguchi.Result psoRepair = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed, "PSO_REPAIR",
+                    true, pBus, false, penalty, penalty);
+
+            Taguchi.Result psoAdaptive = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed + 1, "PSO_ADAPTIVE",
+                    false, 0.0, true, penaltyMin, penaltyMax);
+
+            Taguchi.Result psoBoth = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed + 2, "PSO_BOTH",
+                    true, pBus, true, penaltyMin, penaltyMax);
+
+            saveVariantHistory("results/pso_variants_" + sel.label() + ".csv",
+                    pso, psoRepair, psoAdaptive, psoBoth);
+            Stats.saveVariants(sel.pool(), sel.label(), penalty, alpha,
+                    pso, psoRepair, psoAdaptive, psoBoth, aco);
         }
 
         System.out.println("Wyniki zapisano w results");
@@ -40,6 +77,21 @@ public class Main {
             for (int i = 0; i < psoHist.length; i++)
                 pw.println((i + 1) + "," + String.format("%.6f", psoHist[i])
                         + "," + String.format("%.6f", acoHist[i]));
+        }
+    }
+
+    static void saveVariantHistory(String fileName,
+                                   Taguchi.Result base, Taguchi.Result repair,
+                                   Taguchi.Result adaptive, Taguchi.Result both) throws IOException {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_BOTH");
+            double[] h0 = base.history();
+            double[] h1 = repair.history();
+            double[] h2 = adaptive.history();
+            double[] h3 = both.history();
+            for (int i = 0; i < h0.length; i++)
+                pw.printf("%d,%.6f,%.6f,%.6f,%.6f%n",
+                        i + 1, h0[i], h1[i], h2[i], h3[i]);
         }
     }
 }

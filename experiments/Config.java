@@ -29,6 +29,11 @@ public class Config {
     public int getDatasetCount(String label) { return Integer.parseInt(get("dataset." + label + ".count")); }
     public double getDatasetMinAttr(String label) { return Double.parseDouble(get("dataset." + label + ".minAttr")); }
 
+    // PSO warianty
+    public double getPBus()        { return Double.parseDouble(get("pso.pBus")); }
+    public double getPenaltyMin()  { return Double.parseDouble(get("pso.penaltyMin")); }
+    public double getPenaltyMax()  { return Double.parseDouble(get("pso.penaltyMax")); }
+
     // Taguchi
     public int getTaguchiReplications() { return Integer.parseInt(get("taguchi.replications")); }
 

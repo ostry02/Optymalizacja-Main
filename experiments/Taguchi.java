@@ -87,6 +87,23 @@ public class Taguchi {
                 confirm.getBestFitness(), confirm.getBestResult(), ms, confirm.getHistory());
     }
 
+    // uruchamia potwierdzenie PSO z konkretnymi parametrami i flagami wariantu
+    public static Result confirmPSOVariant(Instance instance, int routeLen, double penalty, double alpha,
+                                           double inertia, double c1, double c2, int nParticles,
+                                           long seed, String algoName,
+                                           boolean useRepair, double pBus,
+                                           boolean adaptivePenalty, double penaltyMin, double penaltyMax) {
+        PSO pso = new PSO(instance, penalty, alpha, nParticles, PSO_ITER, inertia, c1, c2,
+                          new Random(seed), routeLen,
+                          useRepair, pBus, adaptivePenalty, penaltyMin, penaltyMax);
+        long t0 = System.currentTimeMillis();
+        pso.run();
+        long ms = System.currentTimeMillis() - t0;
+        return new Result(algoName, PSO_FACTORS,
+                          new double[]{inertia, c1, c2, nParticles},
+                          pso.getBestFitness(), pso.getBestResult(), ms, pso.getHistory());
+    }
+
     public static Result runACO(Instance instance, int routeLen, double penalty, double alpha,
                               int replications, long baseSeed, String label) throws IOException {
         double[][] results = new double[9][replications];
