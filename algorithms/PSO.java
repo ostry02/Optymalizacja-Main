@@ -22,6 +22,7 @@ public class PSO {
     boolean adaptivePenalty;
     double penaltyMin;
     double penaltyMax;
+    boolean useGreedyInit;   // start z zachlannej konstrukcji zamiast losowych permutacji
 
     int[] bestRoute;
     double bestFitness;
@@ -32,7 +33,7 @@ public class PSO {
                int nParticles, int maxIter, double inertia, double c1, double c2,
                Random rng, int routeLen) {
         this(instance, penalty, alpha, nParticles, maxIter, inertia, c1, c2, rng, routeLen,
-             false, 0.0, false, penalty, penalty);
+             false, 0.0, false, penalty, penalty, false);
     }
 
     public PSO(Instance instance, double penalty, double alpha,
@@ -40,6 +41,16 @@ public class PSO {
                Random rng, int routeLen,
                boolean useRepair, double pBus,
                boolean adaptivePenalty, double penaltyMin, double penaltyMax) {
+        this(instance, penalty, alpha, nParticles, maxIter, inertia, c1, c2, rng, routeLen,
+             useRepair, pBus, adaptivePenalty, penaltyMin, penaltyMax, false);
+    }
+
+    public PSO(Instance instance, double penalty, double alpha,
+               int nParticles, int maxIter, double inertia, double c1, double c2,
+               Random rng, int routeLen,
+               boolean useRepair, double pBus,
+               boolean adaptivePenalty, double penaltyMin, double penaltyMax,
+               boolean useGreedyInit) {
         this.instance = instance;
         this.penalty = penalty;
         this.alpha = alpha;
@@ -55,6 +66,7 @@ public class PSO {
         this.adaptivePenalty = adaptivePenalty;
         this.penaltyMin = penaltyMin;
         this.penaltyMax = penaltyMax;
+        this.useGreedyInit = useGreedyInit;
     }
 
     public int[] run() {
@@ -64,10 +76,10 @@ public class PSO {
 
         double initPenalty = adaptivePenalty ? penaltyMin : penalty;
 
-        // tworze roj permutacji
+        // tworze roj - greedy init: zachlanna konstrukcja; inaczej losowe permutacje
         List<Particle> swarm = new ArrayList<>();
         for (int p = 0; p < nParticles; p++) {
-            int[] pos = randomPerm(n);
+            int[] pos = useGreedyInit ? greedyPerm() : randomPerm(n);
             Evaluation.EvalResult result = Evaluation.evaluate(pos, instance, initPenalty, alpha, routeLen);
             double fit = result.total();
             swarm.add(new Particle(pos, fit));
@@ -173,6 +185,41 @@ public class PSO {
     public double getBestFitness() { return bestFitness; }
     public Evaluation.EvalResult getBestResult() { return bestResult; }
     public double[] getHistory() { return history; }
+
+    // zachlanna konstrukcja trasy
+    private int[] greedyPerm() {
+        int n = instance.n;
+        boolean[] used = new boolean[n];
+        int[] perm = new int[n];
+
+        int start = rng.nextInt(n);
+        perm[0] = start;
+        used[start] = true;
+
+        for (int k = 1; k < routeLen; k++) {
+            int cur = perm[k - 1];
+            int best = -1;
+            double bestScore = -Double.MAX_VALUE;
+            for (int j = 0; j < n; j++) {
+                if (used[j]) continue;
+                double d = Math.max(instance.distance(cur, j), 1e-6);
+                double score = (instance.hasBus(cur, j) ? 100.0 : 0.0)
+                             + (1 + instance.attractions.get(j).attractiveness) / d;
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = j;
+                }
+            }
+            perm[k] = best;
+            used[best] = true;
+        }
+
+        int idx = routeLen;
+        for (int j = 0; j < n; j++)
+            if (!used[j]) perm[idx++] = j;
+
+        return perm;
+    }
 
     // losowa permutacja przez tasowanie
     private int[] randomPerm(int n) {
