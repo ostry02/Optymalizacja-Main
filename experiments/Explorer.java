@@ -33,7 +33,7 @@ public class Explorer {
                 System.out.printf("Brak atrakcji o atrakcyjnosci >= %.1f.%n", minAttr);
                 continue;
             }
-            if (count > pool.n) {
+            if (count >= pool.n) {
                 count = pool.n;
                 System.out.println(pool.n +" atrakcji spelnia");
             }
@@ -56,8 +56,13 @@ public class Explorer {
                 new Random(seed), count);
         aco.run();
 
-        System.out.printf("%nPSO fitness = %.4f, ACO fitness = %.4f%n",
-                pso.getBestFitness(), aco.getBestFitness());
+        model.Evaluation.EvalResult psoR = pso.getBestResult();
+        model.Evaluation.EvalResult acoR = aco.getBestResult();
+
+        System.out.printf("%nPSO: fitness = %.4f  |  penalty = %.4f  |  attractiveness = %.4f%n",
+                pso.getBestFitness(), psoR.penCost(), psoR.attr());
+        System.out.printf("ACO: fitness = %.4f  |  penalty = %.4f  |  attractiveness = %.4f%n",
+                aco.getBestFitness(), acoR.penCost(), acoR.attr());
 
     }
 }

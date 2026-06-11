@@ -1,0 +1,293 @@
+# Attractions: id,name,x,y,attractiveness
+0,Rynek Glowny,62.3,58.4,0.99
+1,Hala Targowa,32.5,85.6,0.46
+2,Ostrow Tumski,62.6,87.9,0.93
+3,Zoo Wroclaw,53.5,84.5,0.22
+4,Sky Tower,23.7,53.0,0.44
+5,Hala Stulecia,34.6,81.0,0.54
+6,Panorama Raclawicka,29.6,54.3,0.25
+7,Ossolineum,34.9,79.6,0.72
+8,Hydropolis,55.2,74.1,0.15
+9,Afrykarium,43.2,86.2,0.31
+10,Aquapark,63.9,88.2,0.31
+11,Katedra Wroclawska,37.6,67.5,0.21
+12,Ratusz,50.1,65.8,0.82
+13,Nowy Targ,47.7,51.6,0.37
+14,Plac Solny,47.6,58.1,0.69
+15,Wyspa Slodowa,39.1,47.7,0.93
+16,Opera Wroclawska,42.3,65.3,0.11
+17,Filharmonia,34.7,61.8,0.66
+18,Teatr Polski,23.7,76.1,0.34
+19,Dworzec Glowny,27.9,50.8,0.59
+20,Uniwersytet Wroclawski,56.8,45.6,0.28
+21,Stadion Miejski,38.1,84.2,0.55
+22,Park Szczytnicki,39.4,82.8,0.66
+23,Ogrod Botaniczny,34.7,76.0,0.50
+24,Most Grunwaldzki,30.2,57.6,0.15
+25,Galeria Dominikanska,33.3,72.6,0.76
+26,Wzgorze Partyzantow,47.0,87.4,0.37
+27,Cmentarz Osobowicki,40.1,82.4,0.76
+28,Synagoga Pod Bialym Bocianem,50.2,50.0,0.45
+29,Zamek Krolewski,22.7,84.8,0.40
+30,Muzeum Narodowe,36.3,65.5,0.16
+31,Muzeum Miejskie,54.4,85.7,0.88
+32,Muzeum Architektury,53.5,59.4,0.79
+33,Muzeum Etnograficzne,36.4,67.9,0.95
+34,Centrum Historii,21.2,46.3,0.12
+35,Park Poludniowy,62.9,49.7,0.87
+36,Park Grabiszynski,37.5,81.9,0.22
+37,Fontanna Multimedialna,37.4,63.4,0.91
+38,Kosciol sw Elzbiety,44.8,47.8,0.72
+39,Kosciol sw Doroty,51.0,83.1,0.59
+40,Kosciol sw Krzysztofa,42.2,57.5,0.49
+41,Biblioteka Uniwersytecka,34.8,81.3,0.30
+42,Brama Tumska,34.0,75.4,0.78
+43,Bulwar Xawerego Dunikowskiego,29.5,54.4,0.38
+44,Galeria Foto-Medium-Art,50.8,51.0,0.46
+45,Galeria Zachodni,33.1,63.2,1.00
+46,Aleja Czerwony,46.6,74.1,0.40
+47,Park Gorny,63.8,69.2,0.60
+48,Kaplica Brochow,61.7,59.5,0.63
+49,Zamek Swojczyce,38.0,80.4,0.65
+50,Teatr Sepolno,35.7,89.5,0.68
+51,Park Sloneczny,32.7,80.0,0.28
+52,Pomnik Nadodrzanski,55.8,78.6,0.25
+53,Zamek Borek,27.5,78.6,0.72
+54,Most Gorny,22.8,66.8,0.80
+55,Teatr Oltaszyn,54.4,76.2,0.27
+56,Dworek Maly,32.8,88.8,0.64
+57,Aquapark Czerwony,37.1,71.4,0.82
+58,Kosciol Psie Pole,29.3,86.0,0.61
+59,Wyspa Gorny,22.1,55.2,0.40
+60,Zaulek Stary,59.7,59.0,0.38
+61,Pomnik Wielki,28.9,62.9,0.20
+62,Bulwar Zachodni,27.4,87.7,0.63
+63,Stadion Zachodni,35.7,53.0,0.93
+64,Muzeum Biskupin,51.8,54.6,0.18
+65,Zaulek Zachodni,36.7,58.5,0.57
+66,Ogrod Zachodni,25.2,70.8,0.50
+67,Centrum Krzyki,62.3,69.4,0.68
+68,Wyspa Zachodni,38.1,64.7,0.34
+69,Brama Nowy,32.8,53.9,0.37
+70,Rynek Gorny,48.9,78.3,0.80
+71,Bulwar Sloneczny,64.2,86.9,0.28
+72,Kamienica Swojczyce,42.9,52.6,0.13
+73,Wieza Bialy,35.7,61.9,0.45
+74,Rynek Wschodni,27.2,52.1,0.86
+75,Skwer Nowy,48.1,74.9,0.16
+76,Palac Nadodrzanski,59.0,47.2,0.60
+77,Wyspa Karlowice,34.4,48.0,0.29
+78,Dworek Nadodrzanski,29.3,53.4,0.18
+79,Palac Klecina,24.6,84.5,0.35
+80,Teatr Bialy,54.4,62.5,0.67
+81,Muzeum Nadodrzanski,41.4,86.0,0.38
+82,Dworek Bialy,43.2,56.2,0.15
+83,Stadion Gorny,58.7,85.7,0.72
+84,Aquapark Karlowice,44.5,53.9,0.44
+85,Aleja Brochow,40.7,62.1,0.19
+86,Ogrod Gorny,53.5,59.0,0.75
+87,Zaulek Wielki,27.5,88.7,0.91
+88,Kino Bialy,53.7,87.2,0.84
+89,Galeria Karlowice,47.1,68.9,0.33
+90,Fontanna Stary,20.1,50.0,0.69
+91,Fontanna Biskupin,52.5,58.5,0.71
+92,Kamienica Nadodrzanski,55.4,87.2,0.61
+93,Palac Oltaszyn,24.3,63.4,0.28
+94,Kaplica Zachodni,23.2,52.9,0.18
+95,Zamek Zachodni,48.6,84.4,0.12
+96,Kosciol Gorny,43.4,70.1,0.53
+97,Muzeum Gorny,50.6,73.5,0.80
+98,Muzeum Maly,23.2,51.7,0.41
+99,Skwer Karlowice,30.2,77.5,0.13
+# Bus Edges: i,j
+0,35
+0,48
+0,60
+1,41
+1,50
+1,56
+1,58
+2,10
+2,71
+2,83
+3,31
+3,39
+3,52
+3,88
+3,92
+3,95
+4,59
+4,94
+4,98
+5,7
+5,41
+5,51
+6,19
+6,24
+6,43
+6,69
+6,74
+6,78
+7,23
+7,41
+7,42
+7,51
+8,47
+8,52
+8,55
+8,67
+8,97
+9,26
+9,27
+9,81
+10,71
+10,83
+11,30
+11,33
+11,57
+11,68
+12,32
+12,80
+12,89
+13,28
+13,38
+13,44
+13,72
+13,84
+14,82
+14,84
+14,91
+15,38
+15,72
+15,77
+16,68
+16,85
+16,96
+17,37
+17,45
+17,65
+17,73
+18,53
+18,66
+18,99
+19,74
+19,78
+20,28
+20,35
+20,76
+21,22
+21,27
+21,36
+21,50
+21,81
+22,27
+22,36
+22,49
+22,81
+23,25
+23,42
+24,43
+24,61
+24,78
+25,42
+25,57
+26,81
+26,95
+27,36
+27,49
+28,44
+28,64
+29,62
+29,79
+29,87
+30,33
+30,37
+30,45
+30,68
+31,39
+31,83
+31,88
+31,92
+32,80
+32,86
+32,91
+33,57
+34,90
+34,94
+34,98
+35,76
+36,49
+37,65
+37,68
+37,73
+37,85
+38,72
+39,95
+40,82
+40,84
+40,85
+41,51
+42,99
+43,69
+43,74
+43,78
+44,64
+44,76
+45,61
+45,73
+46,70
+46,75
+46,89
+46,96
+46,97
+47,48
+47,67
+48,60
+48,67
+48,80
+50,56
+51,53
+51,99
+52,55
+53,99
+54,61
+54,66
+54,93
+55,97
+56,58
+58,62
+58,79
+58,87
+59,94
+59,98
+60,86
+61,93
+62,79
+62,87
+63,65
+63,69
+63,77
+64,86
+64,91
+65,73
+66,93
+68,85
+69,77
+70,75
+70,97
+71,83
+72,82
+72,84
+74,78
+75,97
+79,87
+80,86
+80,91
+82,84
+83,92
+86,91
+88,92
+89,96
+90,94
+90,98
+94,98
