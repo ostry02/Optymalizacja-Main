@@ -13,21 +13,23 @@ public class Main {
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
-        // dane wejsciowe uzytkownika (dataset + filtr + liczba atrakcji)
-        Explorer.Selection sel = Explorer.run();
-
-        System.out.println("Start taguchi");
         long taguchiSeed = seed + 9000L;
+        String[] datasets = cfg.getDatasets();
 
-        // Taguchi strojone na puli wybranej przez uzytkownika
-        Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
-                cfg.getTaguchiReplications(), taguchiSeed, sel.label());
-        Taguchi.Result aco = Taguchi.runACO(sel.pool(), sel.count(), penalty, alpha,
-                cfg.getTaguchiReplications(), taguchiSeed, sel.label());
+        for (int f = 0; f < datasets.length; f++) {
 
-        // najlepsze rozwiazanie -> statystyki
-        saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
-        Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
+            Explorer.Selection sel = Explorer.load(cfg, datasets[f]);
+
+            System.out.println("Start taguchi: " + sel.label());
+
+            Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+            Taguchi.Result aco = Taguchi.runACO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+
+            saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
+            Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
+        }
 
         System.out.println("Wyniki zapisano w results");
     }

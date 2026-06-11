@@ -18,32 +18,19 @@ public class Config {
     public double getPenalty() { return Double.parseDouble(get("penalty")); }
     public double getAlpha() { return Double.parseDouble(get("alpha")); }
 
-    public String[] getInstances() {
-        String[] parts = get("instances").split(",");
+    // nazwy datasetow 
+    public String[] getDatasets() {
+        String[] parts = get("datasets").split(",");
         for (int i=0; i<parts.length; i++) parts[i] = parts[i].trim();
         return parts;
     }
 
-    // PSO
-    public int getPsoParticles() { return Integer.parseInt(get("pso.particles")); }
-    public int getPsoIterations() { return Integer.parseInt(get("pso.iterations")); }
-    public double getPsoInertia() { return Double.parseDouble(get("pso.inertia")); }
-    public double getPsoC1() { return Double.parseDouble(get("pso.c1")); }
-    public double getPsoC2() { return Double.parseDouble(get("pso.c2")); }
-
-    // ACO
-    public int getAcoAnts() { return Integer.parseInt(get("aco.ants")); }
-    public int getAcoIterations() { return Integer.parseInt(get("aco.iterations")); }
-    public double getAcoAlpha() { return Double.parseDouble(get("aco.alpha")); }
-    public double getAcoBeta() { return Double.parseDouble(get("aco.beta")); }
-    public double getAcoEvaporation() { return Double.parseDouble(get("aco.evaporation")); }
-    public double getAcoQ() { return Double.parseDouble(get("aco.q")); }
+    public String getDatasetFile(String label) { return get("dataset." + label + ".file"); }
+    public int getDatasetCount(String label) { return Integer.parseInt(get("dataset." + label + ".count")); }
+    public double getDatasetMinAttr(String label) { return Double.parseDouble(get("dataset." + label + ".minAttr")); }
 
     // Taguchi
     public int getTaguchiReplications() { return Integer.parseInt(get("taguchi.replications")); }
-
-    // Stats
-    public int getStatsRuns() { return Integer.parseInt(get("stats.runs")); }
 
     private String get(String key) {
         String val = props.getProperty(key);

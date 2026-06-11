@@ -3,7 +3,6 @@ package algorithms;
 import java.util.*;
 import model.*;
 
-// PSO dla permutacji - pozycja to permutacja, predkosc to lista swapow
 public class PSO {
 
     int nParticles;
@@ -22,13 +21,6 @@ public class PSO {
     double bestFitness;
     Evaluation.EvalResult bestResult;
     double[] history;
-
-    // domyslnie odwiedzamy wszystkie atrakcje z instancji
-    public PSO(Instance instance, double penalty, double alpha,
-               int nParticles, int maxIter, double inertia, double c1, double c2,
-               Random rng) {
-        this(instance, penalty, alpha, nParticles, maxIter, inertia, c1, c2, rng, instance.n);
-    }
 
     public PSO(Instance instance, double penalty, double alpha,
                int nParticles, int maxIter, double inertia, double c1, double c2,
@@ -142,7 +134,7 @@ public class PSO {
         return p;
     }
 
-    // minimalna sekwencja swapow zeby zamienic src w target
+    // minimalna sekwencja swapow 
     public static List<int[]> computeDiff(int[] src,int[] target) {
         int[] work = new int[src.length];
         for (int i=0; i<src.length;i++) work[i] = src[i];

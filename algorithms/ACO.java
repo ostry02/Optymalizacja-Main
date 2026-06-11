@@ -29,14 +29,6 @@ public class ACO {
     private static final double TAU0 = 1.0;
     private static final double EPS = 1e-6;
 
-    // domyslnie odwiedzamy wszystkie atrakcje z instancji
-    public ACO(Instance instance, double penalty, double alpha,
-               int nAnts, int maxIter, double alphaAco, double betaAco,
-               double evaporationRate, double Q, Random rng) {
-        this(instance, penalty, alpha, nAnts, maxIter, alphaAco, betaAco,
-                evaporationRate, Q, rng, instance.n);
-    }
-
     public ACO(Instance instance, double penalty, double alpha,
                int nAnts, int maxIter, double alphaAco, double betaAco,
                double evaporationRate, double Q, Random rng, int routeLen) {
