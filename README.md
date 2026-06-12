@@ -9,7 +9,7 @@ f = total_distance + penalty * liczba_przejsc_bez_autobusu - alpha * suma_atrakc
 
 Porownanie dwoch metaheurystyk: **PSO** (permutacyjne, swap-velocity) i **ACO** (klasyczny, eta = (1+attr)/dist).
 
-Parametry sa wczytywane z `config.properties` (penalty, alpha, listy instancji, parametry PSO/ACO, liczba powtorzen). Kazdy przebieg uzywa losowego RNG (bez stalego seeda).
+Parametry sa wczytywane z `config.properties` (seed, penalty, alpha, listy instancji, parametry PSO/ACO, liczba powtorzen).
 Instancje sa wczytywane z `data/instance_*.csv`
 
 Wyniki ladowane do plikow CSV w folderze `results/`:
@@ -59,4 +59,4 @@ Optymalizacja-Main/
 | `Stats.java` | experiments | porownanie statystyczne PSO vs ACO (mean/std/min/max) |
 | `Taguchi.java` | experiments | strojenie parametrow metoda Taguchi L9 |
 | `data/instance_*.csv` | — | 7 statycznych instancji (n=5,8,12,20,30,40,50) |
-| `config.properties` | — | konfiguracja (parametry, lista instancji, liczba przebiegow) |
+| `config.properties` | — | konfiguracja (seed, parametry, lista instancji) |

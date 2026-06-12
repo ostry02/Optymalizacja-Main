@@ -9,6 +9,7 @@ public class Main {
         Config cfg = new Config("config.properties");
         new File("results").mkdirs();
 
+        long seed = cfg.getSeed();
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
@@ -16,80 +17,58 @@ public class Main {
         double penaltyMin = cfg.getPenaltyMin();
         double penaltyMax = cfg.getPenaltyMax();
 
-        int runs = cfg.getStatsRuns();
+        long taguchiSeed = seed + 9000L;
         String[] datasets = cfg.getDatasets();
 
         for (int f = 0; f < datasets.length; f++) {
 
             Explorer.Selection sel = Explorer.load(cfg, datasets[f]);
-            int L = sel.count();
             System.out.println("Start taguchi: " + sel.label());
 
-            // Taguchi: dobor parametrow (zapisuje taguchi_*.csv)
-            Taguchi.Result psoTune = Taguchi.runPSO(sel.pool(), L, penalty, alpha,
-                    cfg.getTaguchiReplications(), sel.label());
-            Taguchi.Result acoTune = Taguchi.runACO(sel.pool(), L, penalty, alpha,
-                    cfg.getTaguchiReplications(), sel.label());
+            Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+            Taguchi.Result aco = Taguchi.runACO(sel.pool(), sel.count(), penalty, alpha,
+                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
 
-            double[] pp = psoTune.params();
-            double inertia = pp[0], c1 = pp[1], c2 = pp[2];
-            int particles = (int) Math.round(pp[3]);
+            saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
+            Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
 
-            double[] ap = acoTune.params();
-            double aAlpha = ap[0], aBeta = ap[1], aEvap = ap[2];
-            int aAnts = (int) Math.round(ap[3]);
+            // uruchamiam 3 pozostale warianty PSO z parametrami znalezionymi przez Taguchi
+            double[] p = pso.params();
+            double optInertia  = p[0];
+            double optC1       = p[1];
+            double optC2       = p[2];
+            int    optParticles = (int) Math.round(p[3]);
 
-            System.out.println(runs + " przebiegow / wariant: " + sel.label());
+            long varSeed = taguchiSeed + f + 1_000_000L;
 
-            List<Stats.Agg> aggs = new ArrayList<>();
-            Stats.Agg base = Stats.aggregate("PSO", manyPSO(sel.pool(), L, penalty, alpha,
-                    inertia, c1, c2, particles, "PSO", false, 0.0, false, penalty, penalty, false, runs));
-            Stats.Agg repair = Stats.aggregate("PSO_REPAIR", manyPSO(sel.pool(), L, penalty, alpha,
-                    inertia, c1, c2, particles, "PSO_REPAIR", true, pBus, false, penalty, penalty, false, runs));
-            Stats.Agg adaptive = Stats.aggregate("PSO_ADAPTIVE", manyPSO(sel.pool(), L, penalty, alpha,
-                    inertia, c1, c2, particles, "PSO_ADAPTIVE", false, 0.0, true, penaltyMin, penaltyMax, false, runs));
-            Stats.Agg greedy = Stats.aggregate("PSO_GREEDY", manyPSO(sel.pool(), L, penalty, alpha,
-                    inertia, c1, c2, particles, "PSO_GREEDY", false, 0.0, false, penalty, penalty, true, runs));
-            // wariant ze wszystkimi ulepszeniami: repair + adaptive + greedy
-            Stats.Agg all = Stats.aggregate("PSO_ALL", manyPSO(sel.pool(), L, penalty, alpha,
-                    inertia, c1, c2, particles, "PSO_ALL", true, pBus, true, penaltyMin, penaltyMax, true, runs));
-            Stats.Agg acoAgg = Stats.aggregate("ACO", manyACO(sel.pool(), L, penalty, alpha,
-                    aAlpha, aBeta, aEvap, aAnts, "ACO", runs));
+            System.out.println("PSO warianty: " + sel.label());
 
-            aggs.add(base); aggs.add(repair); aggs.add(adaptive);
-            aggs.add(greedy); aggs.add(all); aggs.add(acoAgg);
+            Taguchi.Result psoRepair = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed, "PSO_REPAIR",
+                    true, pBus, false, penalty, penalty);
 
-            Stats.save(sel.label(), penalty, alpha, base, acoAgg);
-            Stats.saveVariants(sel.label(), penalty, alpha, aggs);
+            Taguchi.Result psoAdaptive = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed + 1, "PSO_ADAPTIVE",
+                    false, 0.0, true, penaltyMin, penaltyMax);
 
-            saveHistory("results/results_" + sel.label() + ".csv",
-                    base.meanHistory(), acoAgg.meanHistory());
+            Taguchi.Result psoBoth = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed + 2, "PSO_BOTH",
+                    true, pBus, true, penaltyMin, penaltyMax);
+
             saveVariantHistory("results/pso_variants_" + sel.label() + ".csv",
-                    base.meanHistory(), repair.meanHistory(), adaptive.meanHistory(),
-                    greedy.meanHistory(), all.meanHistory());
+                    pso, psoRepair, psoAdaptive, psoBoth);
+            Stats.saveVariants(sel.pool(), sel.label(), penalty, alpha,
+                    pso, psoRepair, psoAdaptive, psoBoth, aco);
         }
 
         System.out.println("Wyniki zapisano w results");
-    }
-
-    // uruchamia wariant PSO `runs` razy (kazdy przebieg z losowym RNG)
-    static List<Taguchi.Result> manyPSO(model.Instance pool, int L, double penalty, double alpha,
-            double inertia, double c1, double c2, int particles, String name,
-            boolean useRepair, double pBus, boolean adaptive, double penaltyMin, double penaltyMax,
-            boolean useGreedy, int runs) {
-        List<Taguchi.Result> list = new ArrayList<>();
-        for (int i = 0; i < runs; i++)
-            list.add(Taguchi.confirmPSOVariant(pool, L, penalty, alpha, inertia, c1, c2, particles,
-                    name, useRepair, pBus, adaptive, penaltyMin, penaltyMax, useGreedy));
-        return list;
-    }
-
-    static List<Taguchi.Result> manyACO(model.Instance pool, int L, double penalty, double alpha,
-            double aAlpha, double aBeta, double aEvap, int aAnts, String name, int runs) {
-        List<Taguchi.Result> list = new ArrayList<>();
-        for (int i = 0; i < runs; i++)
-            list.add(Taguchi.confirmACO(pool, L, penalty, alpha, aAlpha, aBeta, aEvap, aAnts, name));
-        return list;
     }
 
     static void saveHistory(String fileName, double[] psoHist, double[] acoHist) throws IOException {
@@ -101,15 +80,18 @@ public class Main {
         }
     }
 
-    // historie sa juz usrednione po wszystkich przebiegach (mean per iteracja)
     static void saveVariantHistory(String fileName,
-                                   double[] h0, double[] h1, double[] h2,
-                                   double[] h3, double[] h4) throws IOException {
+                                   Taguchi.Result base, Taguchi.Result repair,
+                                   Taguchi.Result adaptive, Taguchi.Result both) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
-            pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_GREEDY,PSO_ALL");
+            pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_BOTH");
+            double[] h0 = base.history();
+            double[] h1 = repair.history();
+            double[] h2 = adaptive.history();
+            double[] h3 = both.history();
             for (int i = 0; i < h0.length; i++)
-                pw.printf("%d,%.6f,%.6f,%.6f,%.6f,%.6f%n",
-                        i + 1, h0[i], h1[i], h2[i], h3[i], h4[i]);
+                pw.printf("%d,%.6f,%.6f,%.6f,%.6f%n",
+                        i + 1, h0[i], h1[i], h2[i], h3[i]);
         }
     }
 }
