@@ -76,7 +76,6 @@ public class PSO {
 
         double initPenalty = adaptivePenalty ? penaltyMin : penalty;
 
-        // tworze roj - greedy init: zachlanna konstrukcja; inaczej losowe permutacje
         List<Particle> swarm = new ArrayList<>();
         for (int p = 0; p < nParticles; p++) {
             int[] pos = useGreedyInit ? greedyPerm() : randomPerm(n);
@@ -158,7 +157,6 @@ public class PSO {
         }
 
         history = hist;
-        // zwracam tylko odwiedzane atrakcje
         int[] result = new int[routeLen];
         for (int i = 0; i < routeLen; i++) result[i] = bestRoute[i];
         return result;

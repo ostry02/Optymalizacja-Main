@@ -26,9 +26,9 @@ public class Main {
             System.out.println("Start taguchi: " + sel.label());
 
             Taguchi.Result pso = Taguchi.runPSO(sel.pool(), sel.count(), penalty, alpha,
-                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+                    cfg.getTaguchiReplications(), taguchiSeed, sel.label());
             Taguchi.Result aco = Taguchi.runACO(sel.pool(), sel.count(), penalty, alpha,
-                    cfg.getTaguchiReplications(), taguchiSeed + f, sel.label());
+                    cfg.getTaguchiReplications(), taguchiSeed, sel.label());
 
             saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
             Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
@@ -40,7 +40,7 @@ public class Main {
             double optC2       = p[2];
             int    optParticles = (int) Math.round(p[3]);
 
-            long varSeed = taguchiSeed + f + 1_000_000L;
+            long varSeed = taguchiSeed + 1_000_000L;
 
             System.out.println("PSO warianty: " + sel.label());
 
