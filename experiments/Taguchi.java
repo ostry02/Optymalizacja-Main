@@ -92,10 +92,11 @@ public class Taguchi {
                                            double inertia, double c1, double c2, int nParticles,
                                            long seed, String algoName,
                                            boolean useRepair, double pBus,
-                                           boolean adaptivePenalty, double penaltyMin, double penaltyMax) {
+                                           boolean adaptivePenalty, double penaltyMin, double penaltyMax,
+                                           boolean useGreedyInit) {
         PSO pso = new PSO(instance, penalty, alpha, nParticles, PSO_ITER, inertia, c1, c2,
                           new Random(seed), routeLen,
-                          useRepair, pBus, adaptivePenalty, penaltyMin, penaltyMax);
+                          useRepair, pBus, adaptivePenalty, penaltyMin, penaltyMax, useGreedyInit);
         long t0 = System.currentTimeMillis();
         pso.run();
         long ms = System.currentTimeMillis() - t0;

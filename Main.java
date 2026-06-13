@@ -33,11 +33,10 @@ public class Main {
             saveHistory("results/results_" + sel.label() + ".csv", pso.history(), aco.history());
             Stats.save(sel.pool(), sel.label(), penalty, alpha, pso, aco);
 
-            // uruchamiam 3 pozostale warianty PSO z parametrami znalezionymi przez Taguchi
             double[] p = pso.params();
-            double optInertia  = p[0];
-            double optC1       = p[1];
-            double optC2       = p[2];
+            double optInertia= p[0];
+            double optC1 = p[1];
+            double optC2 = p[2];
             int    optParticles = (int) Math.round(p[3]);
 
             long varSeed = taguchiSeed + 1_000_000L;
@@ -48,24 +47,30 @@ public class Main {
                     sel.pool(), sel.count(), penalty, alpha,
                     optInertia, optC1, optC2, optParticles,
                     varSeed, "PSO_REPAIR",
-                    true, pBus, false, penalty, penalty);
+                    true, pBus, false, penalty, penalty, false);
 
             Taguchi.Result psoAdaptive = Taguchi.confirmPSOVariant(
                     sel.pool(), sel.count(), penalty, alpha,
                     optInertia, optC1, optC2, optParticles,
                     varSeed + 1, "PSO_ADAPTIVE",
-                    false, 0.0, true, penaltyMin, penaltyMax);
+                    false, 0.0, true, penaltyMin, penaltyMax, false);
 
-            Taguchi.Result psoBoth = Taguchi.confirmPSOVariant(
+            Taguchi.Result psoGreedy = Taguchi.confirmPSOVariant(
                     sel.pool(), sel.count(), penalty, alpha,
                     optInertia, optC1, optC2, optParticles,
-                    varSeed + 2, "PSO_BOTH",
-                    true, pBus, true, penaltyMin, penaltyMax);
+                    varSeed + 2, "PSO_GREEDY",
+                    false, 0.0, false, penalty, penalty, true);
+
+            Taguchi.Result psoAll = Taguchi.confirmPSOVariant(
+                    sel.pool(), sel.count(), penalty, alpha,
+                    optInertia, optC1, optC2, optParticles,
+                    varSeed + 3, "PSO_ALL",
+                    true, pBus, true, penaltyMin, penaltyMax, true);
 
             saveVariantHistory("results/pso_variants_" + sel.label() + ".csv",
-                    pso, psoRepair, psoAdaptive, psoBoth);
+                    pso, psoRepair, psoAdaptive, psoGreedy, psoAll);
             Stats.saveVariants(sel.pool(), sel.label(), penalty, alpha,
-                    pso, psoRepair, psoAdaptive, psoBoth, aco);
+                    pso, psoRepair, psoAdaptive, psoGreedy, psoAll, aco);
         }
 
         System.out.println("Wyniki zapisano w results");
@@ -82,16 +87,18 @@ public class Main {
 
     static void saveVariantHistory(String fileName,
                                    Taguchi.Result base, Taguchi.Result repair,
-                                   Taguchi.Result adaptive, Taguchi.Result both) throws IOException {
+                                   Taguchi.Result adaptive, Taguchi.Result greedy,
+                                   Taguchi.Result all) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
-            pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_BOTH");
+            pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_GREEDY,PSO_ALL");
             double[] h0 = base.history();
             double[] h1 = repair.history();
             double[] h2 = adaptive.history();
-            double[] h3 = both.history();
+            double[] h3 = greedy.history();
+            double[] h4 = all.history();
             for (int i = 0; i < h0.length; i++)
-                pw.printf("%d,%.6f,%.6f,%.6f,%.6f%n",
-                        i + 1, h0[i], h1[i], h2[i], h3[i]);
+                pw.printf("%d,%.6f,%.6f,%.6f,%.6f,%.6f%n",
+                        i + 1, h0[i], h1[i], h2[i], h3[i], h4[i]);
         }
     }
 }

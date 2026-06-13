@@ -7,14 +7,14 @@ public class Stats {
 
     public static void saveVariants(Instance instance, String label, double penalty, double alpha,
                                     Taguchi.Result psoBase, Taguchi.Result psoRepair,
-                                    Taguchi.Result psoAdaptive, Taguchi.Result psoBoth,
-                                    Taguchi.Result aco) throws IOException {
+                                    Taguchi.Result psoAdaptive, Taguchi.Result psoGreedy,
+                                    Taguchi.Result psoAll, Taguchi.Result aco) throws IOException {
 
         String filename = "results/stats_variants_" + label + ".csv";
         PrintWriter pw = new PrintWriter(new FileWriter(filename));
         pw.println("algo,fitness,time_ms,dist,noBus,penalty_cost,attr,attr_score,total,best_params");
 
-        Taguchi.Result[] wyniki = {psoBase, psoRepair, psoAdaptive, psoBoth, aco};
+        Taguchi.Result[] wyniki = {psoBase, psoRepair, psoAdaptive, psoGreedy, psoAll, aco};
         for (Taguchi.Result res : wyniki) {
             Evaluation.EvalResult e = res.eval();
             String params = "";
