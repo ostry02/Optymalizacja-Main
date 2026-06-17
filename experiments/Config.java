@@ -37,6 +37,13 @@ public class Config {
     // Taguchi
     public int getTaguchiReplications() { return Integer.parseInt(get("taguchi.replications")); }
 
+    // liczba niezaleznych przebiegow do statystyk (mean/std/min/max)
+    public int getStatsRuns() { return Integer.parseInt(get("stats.runs")); }
+
+    // connectivity-guided ACO
+    public double getAcoBusBonus()  { return Double.parseDouble(get("aco.busBonus")); }
+    public double getAcoLookahead() { return Double.parseDouble(get("aco.lookahead")); }
+
     private String get(String key) {
         String val = props.getProperty(key);
         return val.trim();

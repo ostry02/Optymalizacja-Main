@@ -18,8 +18,14 @@ public class ACO {
     private final Random rng;
     private final int routeLen;   // ile atrakcji ma odwiedzic]
 
+    // connectivity-guided
+    private final boolean connectivityGuided;
+    private final double busBonus;   // bonus za przeskok autobusowy
+    private final double lookahead;  // waga look-ahead: liczba dalszych polaczen autobusowych
+
     private double[][] tau;
     private double[][] eta;
+    private int[][] busAdj;          // listy sasiedztwa autobusowego
 
     private int[] bestRoute;
     private double bestFitness;
@@ -32,6 +38,14 @@ public class ACO {
     public ACO(Instance instance, double penalty, double alpha,
                int nAnts, int maxIter, double alphaAco, double betaAco,
                double evaporationRate, double Q, Random rng, int routeLen) {
+        this(instance, penalty, alpha, nAnts, maxIter, alphaAco, betaAco,
+             evaporationRate, Q, rng, routeLen, false, 0.0, 0.0);
+    }
+
+    public ACO(Instance instance, double penalty, double alpha,
+               int nAnts, int maxIter, double alphaAco, double betaAco,
+               double evaporationRate, double Q, Random rng, int routeLen,
+               boolean connectivityGuided, double busBonus, double lookahead) {
         this.instance = instance;
         this.penalty = penalty;
         this.alpha = alpha;
@@ -43,6 +57,9 @@ public class ACO {
         this.Q = Q;
         this.rng = rng;
         this.routeLen = routeLen;
+        this.connectivityGuided = connectivityGuided;
+        this.busBonus = busBonus;
+        this.lookahead = lookahead;
     }
 
     public int[] run() {
@@ -52,6 +69,7 @@ public class ACO {
 
         initTau(n);
         initEta(n);
+        if (connectivityGuided) initBusAdj(n);
 
         for (int iter = 0; iter < maxIter; iter++) {
             int[] iterBestRoute = null;
@@ -103,17 +121,30 @@ public class ACO {
         boolean[] visited = new boolean[n];
         //odwiedza tylko routeLen atrakcji
         int[] tour = new int[routeLen];
+
+        int[] remDeg = null;
+        if (connectivityGuided) {
+            remDeg = new int[n];
+            for (int i = 0; i < n; i++) remDeg[i] = busAdj[i].length;
+        }
+
         int current = rng.nextInt(n);
         tour[0] = current;
         visited[current] = true;
+        if (connectivityGuided) for (int u : busAdj[current]) remDeg[u]--;
 
         for (int step = 1; step < routeLen; step++) {
             double[] weight = new double[n];
             double sum = 0;
             for (int j = 0; j < n; j++) {
                 if (!visited[j]) {
+                    double visib = eta[current][j];
+                    if (connectivityGuided) {
+                        if (instance.hasBus(current, j)) visib *= (1.0 + busBonus);
+                        visib *= (1.0 + lookahead * remDeg[j]);
+                    }
                     weight[j] = Math.pow(tau[current][j], alphaAco)
-                            * Math.pow(eta[current][j], betaAco);
+                            * Math.pow(visib, betaAco);
                     sum += weight[j];
                 }
             }
@@ -135,9 +166,23 @@ public class ACO {
 
             tour[step] = next;
             visited[next] = true;
+            if (connectivityGuided) for (int u : busAdj[next]) remDeg[u]--;
             current = next;
         }
         return tour;
+    }
+
+    private void initBusAdj(int n) {
+        List<List<Integer>> adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+        for (int i = 0; i < n; i++)
+            for (int j = i + 1; j < n; j++)
+                if (instance.hasBus(i, j)) { adj.get(i).add(j); adj.get(j).add(i); }
+        busAdj = new int[n][];
+        for (int i = 0; i < n; i++) {
+            busAdj[i] = new int[adj.get(i).size()];
+            for (int k = 0; k < busAdj[i].length; k++) busAdj[i][k] = adj.get(i).get(k);
+        }
     }
 
     private void evaporate(int n) {

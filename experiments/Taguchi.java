@@ -105,6 +105,21 @@ public class Taguchi {
                           pso.getBestFitness(), pso.getBestResult(), ms, pso.getHistory());
     }
 
+    // pojedynczy przebieg ACO z konkretnymi parametrami (do agregacji wielu runow)
+    public static Result confirmACO(Instance instance, int routeLen, double penalty, double alpha,
+                                    double alphaAco, double betaAco, double evap, int nAnts,
+                                    String algoName,
+                                    boolean connectivityGuided, double busBonus, double lookahead) {
+        ACO aco = new ACO(instance, penalty, alpha, nAnts, ACO_ITER, alphaAco, betaAco, evap, 100.0,
+                          new Random(), routeLen, connectivityGuided, busBonus, lookahead);
+        long t0 = System.currentTimeMillis();
+        aco.run();
+        long ms = System.currentTimeMillis() - t0;
+        return new Result(algoName, ACO_FACTORS,
+                          new double[]{alphaAco, betaAco, evap, nAnts},
+                          aco.getBestFitness(), aco.getBestResult(), ms, aco.getHistory());
+    }
+
     public static Result runACO(Instance instance, int routeLen, double penalty, double alpha,
                               int replications, long baseSeed, String label) throws IOException {
         double[][] results = new double[9][replications];
