@@ -14,6 +14,7 @@ public class Config {
         }
     }
 
+    public long getSeed() { return Long.parseLong(get("seed")); }
     public double getPenalty() { return Double.parseDouble(get("penalty")); }
     public double getAlpha() { return Double.parseDouble(get("alpha")); }
 

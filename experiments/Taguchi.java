@@ -44,7 +44,7 @@ public class Taguchi {
                          long timeMs, double[] history) {}
 
     public static Result runPSO(Instance instance, int routeLen, double penalty, double alpha,
-                              int replications, String label) throws IOException {
+                              int replications, long baseSeed, String label) throws IOException {
 
         double[][] results = new double[9][replications];
 
@@ -58,7 +58,7 @@ public class Taguchi {
             for (int r = 0; r < replications; r++) {
                 PSO pso = new PSO(instance, penalty, alpha,
                         nParticles, PSO_ITER, inertia, c1, c2,
-                        new Random(), routeLen);
+                        new Random(baseSeed + exp * 1000L + r), routeLen);
                 pso.run();
                 results[exp][r] = pso.getBestFitness();
             }
@@ -77,7 +77,7 @@ public class Taguchi {
 
         PSO confirm = new PSO(instance, penalty, alpha,
                 optParticles, PSO_ITER, optInertia, optC1, optC2,
-                new Random(), routeLen);
+                new Random(baseSeed + 999_000L), routeLen);
         long t0 = System.currentTimeMillis();
         confirm.run();
         long ms = System.currentTimeMillis() - t0;
@@ -90,12 +90,12 @@ public class Taguchi {
     // uruchamia potwierdzenie PSO z konkretnymi parametrami i flagami wariantu
     public static Result confirmPSOVariant(Instance instance, int routeLen, double penalty, double alpha,
                                            double inertia, double c1, double c2, int nParticles,
-                                           String algoName,
+                                           long seed, String algoName,
                                            boolean useRepair, double pBus,
                                            boolean adaptivePenalty, double penaltyMin, double penaltyMax,
                                            boolean useGreedyInit) {
         PSO pso = new PSO(instance, penalty, alpha, nParticles, PSO_ITER, inertia, c1, c2,
-                          new Random(), routeLen,
+                          new Random(seed), routeLen,
                           useRepair, pBus, adaptivePenalty, penaltyMin, penaltyMax, useGreedyInit);
         long t0 = System.currentTimeMillis();
         pso.run();
@@ -121,7 +121,7 @@ public class Taguchi {
     }
 
     public static Result runACO(Instance instance, int routeLen, double penalty, double alpha,
-                              int replications, String label) throws IOException {
+                              int replications, long baseSeed, String label) throws IOException {
         double[][] results = new double[9][replications];
 
         for (int exp = 0; exp < 9; exp++) {
@@ -134,7 +134,7 @@ public class Taguchi {
             for (int r = 0; r < replications; r++) {
                 ACO aco = new ACO(instance, penalty, alpha,
                         nAnts, ACO_ITER, alphaAco, betaAco, evap, 100.0,
-                        new Random(), routeLen);
+                        new Random(baseSeed + exp * 1000L + r), routeLen);
                 aco.run();
                 results[exp][r] = aco.getBestFitness();
             }
@@ -153,7 +153,7 @@ public class Taguchi {
 
         ACO confirm = new ACO(instance, penalty, alpha,
                 optAnts, ACO_ITER, optAlpha, optBeta, optEvap, 100.0,
-                new Random(), routeLen);
+                new Random(baseSeed + 999_000L), routeLen);
         long t0 = System.currentTimeMillis();
         confirm.run();
         long ms = System.currentTimeMillis() - t0;

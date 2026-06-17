@@ -9,6 +9,7 @@ public class Main {
         Config cfg = new Config("config.properties");
         new File("results").mkdirs();
 
+        long seed = cfg.getSeed();
         double penalty = cfg.getPenalty();
         double alpha = cfg.getAlpha();
 
@@ -25,7 +26,6 @@ public class Main {
         for (int f = 0; f < datasets.length; f++) {
 
             Explorer.Selection sel = Explorer.load(cfg, datasets[f]);
-            int L = sel.count();
             System.out.println("Start taguchi: " + sel.label());
 
             // Taguchi: dobor parametrow (zapisuje taguchi_*.csv)
@@ -73,8 +73,9 @@ public class Main {
             saveHistory("results/results_" + sel.label() + ".csv",
                     base.meanHistory(), acoAgg.meanHistory());
             saveVariantHistory("results/pso_variants_" + sel.label() + ".csv",
-                    base.meanHistory(), repair.meanHistory(), adaptive.meanHistory(),
-                    greedy.meanHistory(), all.meanHistory());
+                    pso, psoRepair, psoAdaptive, psoGreedy, psoAll);
+            Stats.saveVariants(sel.pool(), sel.label(), penalty, alpha,
+                    pso, psoRepair, psoAdaptive, psoGreedy, psoAll, aco);
         }
 
         System.out.println("Wyniki zapisano w results");
@@ -118,12 +119,17 @@ public class Main {
         }
     }
 
-    // historie sa juz usrednione po wszystkich przebiegach (mean per iteracja)
     static void saveVariantHistory(String fileName,
-                                   double[] h0, double[] h1, double[] h2,
-                                   double[] h3, double[] h4) throws IOException {
+                                   Taguchi.Result base, Taguchi.Result repair,
+                                   Taguchi.Result adaptive, Taguchi.Result greedy,
+                                   Taguchi.Result all) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
             pw.println("iteration,PSO_BASE,PSO_REPAIR,PSO_ADAPTIVE,PSO_GREEDY,PSO_ALL");
+            double[] h0 = base.history();
+            double[] h1 = repair.history();
+            double[] h2 = adaptive.history();
+            double[] h3 = greedy.history();
+            double[] h4 = all.history();
             for (int i = 0; i < h0.length; i++)
                 pw.printf("%d,%.6f,%.6f,%.6f,%.6f,%.6f%n",
                         i + 1, h0[i], h1[i], h2[i], h3[i], h4[i]);
