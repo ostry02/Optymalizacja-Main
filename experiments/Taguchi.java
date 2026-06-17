@@ -108,10 +108,10 @@ public class Taguchi {
     // pojedynczy przebieg ACO z konkretnymi parametrami (do agregacji wielu runow)
     public static Result confirmACO(Instance instance, int routeLen, double penalty, double alpha,
                                     double alphaAco, double betaAco, double evap, int nAnts,
-                                    String algoName,
+                                    long seed, String algoName,
                                     boolean connectivityGuided, double busBonus, double lookahead) {
         ACO aco = new ACO(instance, penalty, alpha, nAnts, ACO_ITER, alphaAco, betaAco, evap, 100.0,
-                          new Random(), routeLen, connectivityGuided, busBonus, lookahead);
+                          new Random(seed), routeLen, connectivityGuided, busBonus, lookahead);
         long t0 = System.currentTimeMillis();
         aco.run();
         long ms = System.currentTimeMillis() - t0;
