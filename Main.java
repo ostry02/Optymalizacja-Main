@@ -16,6 +16,9 @@ public class Main {
         double penaltyMin = cfg.getPenaltyMin();
         double penaltyMax = cfg.getPenaltyMax();
 
+        double busBonus   = cfg.getAcoBusBonus();
+        double lookahead  = cfg.getAcoLookahead();
+
         int runs = cfg.getStatsRuns();
         String[] datasets = cfg.getDatasets();
 
@@ -54,13 +57,18 @@ public class Main {
             Stats.Agg all = Stats.aggregate("PSO_ALL", manyPSO(sel.pool(), L, penalty, alpha,
                     inertia, c1, c2, particles, "PSO_ALL", true, pBus, true, penaltyMin, penaltyMax, true, runs));
             Stats.Agg acoAgg = Stats.aggregate("ACO", manyACO(sel.pool(), L, penalty, alpha,
-                    aAlpha, aBeta, aEvap, aAnts, "ACO", runs));
+                    aAlpha, aBeta, aEvap, aAnts, "ACO", false, 0.0, 0.0, runs));
+            // connectivity-guided ACO
+            Stats.Agg acoCG = Stats.aggregate("ACO_CG", manyACO(sel.pool(), L, penalty, alpha,
+                    aAlpha, aBeta, aEvap, aAnts, "ACO_CG", true, busBonus, lookahead, runs));
 
             aggs.add(base); aggs.add(repair); aggs.add(adaptive);
-            aggs.add(greedy); aggs.add(all); aggs.add(acoAgg);
+            aggs.add(greedy); aggs.add(all); aggs.add(acoAgg); aggs.add(acoCG);
 
             Stats.save(sel.label(), penalty, alpha, base, acoAgg);
             Stats.saveVariants(sel.label(), penalty, alpha, aggs);
+            saveAcoCompare("results/aco_compare_" + sel.label() + ".csv",
+                    acoAgg.meanHistory(), acoCG.meanHistory());
 
             saveHistory("results/results_" + sel.label() + ".csv",
                     base.meanHistory(), acoAgg.meanHistory());
@@ -85,11 +93,20 @@ public class Main {
     }
 
     static List<Taguchi.Result> manyACO(model.Instance pool, int L, double penalty, double alpha,
-            double aAlpha, double aBeta, double aEvap, int aAnts, String name, int runs) {
+            double aAlpha, double aBeta, double aEvap, int aAnts, String name,
+            boolean connectivityGuided, double busBonus, double lookahead, int runs) {
         List<Taguchi.Result> list = new ArrayList<>();
         for (int i = 0; i < runs; i++)
-            list.add(Taguchi.confirmACO(pool, L, penalty, alpha, aAlpha, aBeta, aEvap, aAnts, name));
+            list.add(Taguchi.confirmACO(pool, L, penalty, alpha, aAlpha, aBeta, aEvap, aAnts, name,
+                    connectivityGuided, busBonus, lookahead));
         return list;
+    }
+    static void saveAcoCompare(String fileName, double[] base, double[] cg) throws IOException {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+            pw.println("iteration,ACO,ACO_CG");
+            for (int i = 0; i < base.length; i++)
+                pw.printf("%d,%.6f,%.6f%n", i + 1, base[i], cg[i]);
+        }
     }
 
     static void saveHistory(String fileName, double[] psoHist, double[] acoHist) throws IOException {
